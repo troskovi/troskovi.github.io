@@ -750,7 +750,7 @@ const I18N = {
     created_on: 'napravljen',
     selected: 'izabrano',
     export_short: 'izvezi',
-    delete_short: 'obriši',
+    delete_short: 'obriši', rename_short: 'preimenuj', rename_title: 'Preimenuj projekat', note_renamed: 'Preimenovano:', enter_project_name: 'Unesi naziv projekta',
     exported_projects: 'izvezeno',
     projects_word: 'projekata',
     confirm_delete_projects: 'obrisati',
@@ -758,7 +758,7 @@ const I18N = {
     projects_deleted: 'projekata obrisano.',
     projects_title: 'projekti',
     search_projects_placeholder: '🔍 pretraži projekte...',
-    long_press_hint: 'dug dodir na projekat za brisanje/izvoz više odjednom',
+    long_press_hint: 'dug dodir na projekat: preimenuj, izvezi ili obriši',
     restored: 'vraćeno.',
     ai_processing_error: 'greška pri obradi. pokušaj ponovo.',
     ai_no_items_recognized: 'AI nije prepoznao nijednu stavku iz tog teksta. probaj drugačiju formulaciju (npr. "naziv 10 eur").',
@@ -905,7 +905,7 @@ const I18N = {
     created_on: 'created',
     selected: 'selected',
     export_short: 'export',
-    delete_short: 'delete',
+    delete_short: 'delete', rename_short: 'rename', rename_title: 'Rename project', note_renamed: 'Renamed:', enter_project_name: 'Enter a project name',
     exported_projects: 'exported',
     projects_word: 'projects',
     confirm_delete_projects: 'delete',
@@ -913,7 +913,7 @@ const I18N = {
     projects_deleted: 'projects deleted.',
     projects_title: 'projects',
     search_projects_placeholder: '🔍 search projects...',
-    long_press_hint: 'long-press a project to delete/export multiple at once',
+    long_press_hint: 'long-press a project: rename, export or delete',
     restored: 'restored.',
     ai_processing_error: 'error while processing. please try again.',
     ai_no_items_recognized: 'the AI couldn\'t recognize any item in that text. try a different phrasing (e.g. "name 10 eur").',
@@ -1291,7 +1291,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 9; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 10; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -2211,6 +2211,7 @@ function renderProjectSelectionBar(){
   const n = selectedProjectIds.size;
   bar.innerHTML = '<div style="display:flex;align-items:center;gap:7px;background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:10px;">'+
     '<span style="flex:1;font-size:12.5px;font-weight:700;color:var(--blue-deep);">'+n+' '+t('selected')+'</span>'+
+    '<button onclick="openRenameSelectedProject()" '+(n!==1?'disabled':'')+' style="border:1px solid var(--blue-deep);background:var(--surface);color:var(--blue-deep);border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;cursor:pointer;'+(n!==1?'opacity:.4;':'')+'">✎ '+t('rename_short')+'</button>'+
     '<button onclick="exportSelectedProjects()" '+(n===0?'disabled':'')+' style="border:1px solid var(--blue-deep);background:var(--surface);color:var(--blue-deep);border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;cursor:pointer;">⬇ '+t('export_short')+'</button>'+
     '<button onclick="confirmDeleteSelectedProjects()" '+(n===0?'disabled':'')+' style="border:1px solid var(--coral);background:var(--coral);color:#fff;border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;cursor:pointer;">🗑 '+t('delete_short')+'</button>'+
     '<button onclick="exitSelectMode()" style="border:none;background:none;color:var(--text-dim);font-size:16px;padding:2px 4px;cursor:pointer;">✕</button>'+
@@ -2255,6 +2256,34 @@ function confirmDeleteSelectedProjects(){
     else { renderProjectList(); renderProjectSelectionBar(); }
     showBanner(n+' '+t('projects_deleted'), 'info');
   }, t('default_yes_delete'), t('cancel'), 'delete-btn');
+}
+/* v10: dug pritisak → izabran tačno jedan projekat → „Preimenuj“ (mali prozor preko ekrana projekata) */
+function openRenameSelectedProject(){
+  if(selectedProjectIds.size!==1) return;
+  const pid = Array.from(selectedProjectIds)[0];
+  const proj = projects.find(p=>p.id===pid); if(!proj) return;
+  const backdrop=document.createElement('div'); backdrop.className='modal-backdrop small-modal'; backdrop.id='confirmBackdrop';
+  backdrop.innerHTML = '<div class="modal"><button class="modal-close-x" onclick="closeConfirmModal()">✕</button><h2>'+t('rename_title')+'</h2>'+
+    '<div class="field"><label>'+t('project_name')+'</label><input type="text" id="renameProjInput" value="'+escapeHtml(proj.name)+'" maxlength="40" onkeydown="if(event.key===\'Enter\'){ event.preventDefault(); saveRenameSelectedProject(\''+pid+'\'); }"></div>'+
+    '<div class="modal-actions"><button class="cancel-btn" onclick="closeConfirmModal()">'+t('cancel')+'</button>'+
+    '<button class="create-btn" onclick="saveRenameSelectedProject(\''+pid+'\')">'+t('save')+'</button></div></div>';
+  anchorUnderHeader(backdrop);
+  document.body.appendChild(backdrop);
+  pushOverlayEntry(closeConfirmModalDomOnly);
+  backdrop.addEventListener('click',(e)=>{ if(e.target===backdrop) closeConfirmModal(); });
+  setTimeout(()=>{ const el=document.getElementById('renameProjInput'); if(el) el.focus(); }, 150);
+}
+function saveRenameSelectedProject(pid){
+  const inp = document.getElementById('renameProjInput'); if(!inp) return;
+  const name = inp.value.trim();
+  if(!name){ showNote(t('enter_project_name'), {warn:true}); inp.focus(); return; }
+  const proj = projects.find(p=>p.id===pid); if(!proj) return;
+  proj.name = name;
+  persistProjects();
+  closeConfirmModal();
+  selectMode = false; selectedProjectIds = new Set();
+  renderProjectList(); renderProjectSelectionBar(); render();
+  showNote(t('note_renamed')+' '+name);
 }
 function filterProjectList(v){ projectSearchQuery = v; renderProjectList(); }
 function openProjectSwitcher(){
