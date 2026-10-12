@@ -566,6 +566,32 @@ input::selection, textarea::selection{ background:color-mix(in srgb, var(--hd-ac
 .tr2-total.is-search .tr2-proj{ display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:52vw; }
 [data-theme="ponoc"]{ --hd-acc:var(--gold); }
 [data-theme="crna"]{ --hd-acc:var(--gold-deep); }
+
+/* ===== v8 ===== */
+/* zaglavlje sabijeno na minimum */
+html[data-theme] .topbar{ padding:6px 12px 6px; }
+.hd-row{ height:40px; }
+.hd-icons{ margin-top:6px; }
+.hd-ico{ gap:3px; }
+.hd-icons + .search-row, .hd-search{ margin-top:6px; }
+/* dugme četa: isti kvadrat kao ikonice u zaglavlju */
+.bottom-bar .icon-btn.chat-sq{ width:54px; height:54px; border-radius:16px; font-size:21px; flex:none; }
+.bottom-bar .icon-btn.chat-sq svg{ width:24px; height:24px; }
+/* polje za unos: zatvoreno jedan red; dok se piše raširi se od zaglavlja do dugmadi */
+.entry-row-input{ position:relative; height:46px; z-index:6; }
+.entry-row-input .entry-input-wrap{ position:absolute; left:0; right:0; bottom:0; height:46px; box-sizing:border-box; align-items:stretch; transition:height .22s cubic-bezier(.2,.8,.2,1), border-radius .22s; }
+html.mi-no-anim .entry-row-input .entry-input-wrap{ transition:none; }
+.entry-input-wrap textarea{ flex:1; min-width:0; width:100%; border:none; background:transparent; padding:9px 6px; font-size:14.5px; line-height:20px; color:var(--text); font-family:inherit; resize:none; overflow:hidden; white-space:nowrap; outline:none !important; box-sizing:border-box; margin:0; }
+.entry-input-wrap textarea::placeholder{ color:var(--text-dim); }
+body:not(.mi-rest) .entry-row-input:focus-within .entry-input-wrap{ height:var(--mi-open-h, 160px); border-radius:14px !important; box-shadow:0 0 0 8px var(--bg); }
+body:not(.mi-rest) .entry-row-input:focus-within textarea{ white-space:pre-wrap; overflow-y:auto; }
+.entry-row-input:focus-within .entry-input-wrap{ outline:1.5px solid var(--focus-line); outline-offset:-1px; }
+/* svi projekti i izmeni stavku: preko celog ekrana */
+.modal-backdrop.proj-screen, .modal-backdrop.ed-backdrop{ background:var(--surface); padding:0; }
+.modal-backdrop.proj-screen .modal, .modal-backdrop.ed-backdrop .modal.ed-modal{ position:fixed; inset:0; top:0; left:0; transform:none; width:100%; max-width:none; height:100%; max-height:none; border-radius:0; border:none; }
+/* ostali prozori na početnom ekranu: gornja ivica tačno ispod zaglavlja, visina po sadržaju (najviše do dna/tastature) */
+.modal-backdrop.anch{ align-items:flex-start; background:linear-gradient(to bottom, transparent var(--hd-bottom,0px), rgba(20,20,20,.5) var(--hd-bottom,0px)); }
+.modal-backdrop.anch .modal, .modal-backdrop.anch.small-modal .modal{ top:calc(var(--hd-bottom,0px) + 8px); transform:translateX(-50%); max-height:calc(100% - var(--hd-bottom,0px) - 16px); }
 </style>
 </head>
 <body>
@@ -706,7 +732,7 @@ const I18N = {
     ai_format_reason: 'razlog',
     version_label: 'verzija',
     found_label: 'pronađeno', undo: 'korak nazad', redo: 'korak napred',
-    hd_project: 'Projekat', hd_search: 'Pretraži', hd_currency: 'Valuta', hd_sort: 'Sortiraj',
+    hd_project: 'Projekat', hd_search: 'Pretraži', hd_currency: 'Valuta', hd_sort: 'Sortiraj', hd_receipt: 'Račun',
     base_row: 'Obračun u', base_title: 'obračunska valuta', rate_row: 'Kurs', no_rate: 'nema kurs',
     rate_auto_hint: 'Kurs za drugu valutu se pojavi ovde sam, čim dodaš stavku u toj valuti.',
     sort_by_date: 'Po datumu', sort_by_category: 'Po kategoriji', sort_by_name: 'Po nazivu',
@@ -860,7 +886,7 @@ const I18N = {
     ai_format_reason: 'reason',
     version_label: 'version',
     found_label: 'found', undo: 'undo', redo: 'redo',
-    hd_project: 'Project', hd_search: 'Search', hd_currency: 'Currency', hd_sort: 'Sort',
+    hd_project: 'Project', hd_search: 'Search', hd_currency: 'Currency', hd_sort: 'Sort', hd_receipt: 'Receipt',
     base_row: 'Totals in', base_title: 'totals currency', rate_row: 'Rate', no_rate: 'no rate',
     rate_auto_hint: 'A rate for another currency appears here by itself as soon as you add an item in it.',
     sort_by_date: 'By date', sort_by_category: 'By category', sort_by_name: 'By name',
@@ -1101,6 +1127,7 @@ function themeOptionsHtml(){
 }
 /* linijske ikonice za nove teme (klasična tema i dalje prikazuje emoji) */
 const ICONS = {
+  camera:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>',
   plus:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   search:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
   close:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
@@ -1338,7 +1365,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 7; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 8; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -1768,6 +1795,7 @@ function removeBatchItem(idx){
 }
 async function submitManualText(){
   if(selectedPhoto){
+    document.body.classList.add('mi-rest');
     await handleIncomingImage();
     const inp2 = document.getElementById('manualInput');
     if(inp2) inp2.focus();
@@ -1777,6 +1805,7 @@ async function submitManualText(){
   const text=inp.value.trim();
   if(!text) return;
   inp.value='';
+  document.body.classList.add('mi-rest');
   inp.focus();
   await handleIncomingText(text);
   const inp2 = document.getElementById('manualInput');
@@ -1967,8 +1996,9 @@ function render(){
     '<button class="hd-ico" onclick="toggleSearch()"><span class="icon-btn hd-sq">'+ic('🔍','search')+'</span><span class="hd-tx">'+t('hd_search')+'</span></button>'+
     '<button class="hd-ico" onclick="openCurrencyWindow()"><span class="icon-btn hd-sq">'+headerRateHtml(dispCur, otherCurrencies)+'</span><span class="hd-tx">'+t('hd_currency')+'</span></button>'+
     '<button class="hd-ico" onclick="openSortWindow()"><span class="icon-btn hd-sq">'+ic('↕️','sort')+'</span><span class="hd-tx">'+t('hd_sort')+'</span></button>'+
+    '<button class="hd-ico" onclick="openAttachMenu()"><span class="icon-btn hd-sq">'+ic('📷','camera')+'</span><span class="hd-tx">'+t('hd_receipt')+'</span></button>'+
     '</div>')+
-    '<div class="tb-row" style="margin-top:7px;">'+
+    '<div class="tb-row" style="margin-top:6px;">'+
     (groupKeys.length>0 ? ('<div class="tr2-total'+(searchActive?' is-search':'')+'"><span class="tr2-left"><span class="tr2-proj">'+(searchActive ? escapeHtml(t('found_label')+': '+searchQuery.trim()) : t('total'))+'</span><span class="tr2-label">'+(searchActive?foundCount:entries.length)+' '+t('items_short')+'</span></span><span class="tr2-val num">'+amtHtml(fmtAmt(searchActive?foundTotal:grandTotal), (dispCur||'').toLowerCase())+'</span>'+missingPill(searchActive?foundMissing:grandMissing)+'</div>') : '')+
     '</div>'+
     '</div>'+
@@ -1978,13 +2008,13 @@ function render(){
     (selectedPhoto ? ('<div class="photo-preview-row"><img src="'+selectedPhoto.dataUrl+'"><span class="pp-name">'+t('photo_selected')+': '+escapeHtml(selectedPhoto.name)+'</span><button class="pp-remove" onclick="clearSelectedPhoto()">✕ '+t('remove_photo')+'</button></div>') : '')+
     '<div class="entry-row entry-row-input">'+
     '<div class="entry-input-wrap">'+
-    '<input type="text" id="manualInput" placeholder="'+t('manual_input_placeholder')+'" onkeydown="if(event.key===\'Enter\') submitManualText()">'+
+    '<textarea id="manualInput" rows="1" enterkeyhint="send" placeholder="'+t('manual_input_placeholder')+'" onkeydown="if(event.key===\'Enter\'){ event.preventDefault(); submitManualText(); }"></textarea>'+
     '</div></div>'+
     '<div class="entry-row entry-row-actions">'+
-    '<button class="plus-btn chat-btn" onclick="openChatMode()" title="'+t('ai_chat_title')+'">'+ic('&#128172;','chat')+'</button>'+
+    '<button class="icon-btn hd-sq chat-sq" onclick="openChatMode()" title="'+t('ai_chat_title')+'">'+ic('&#128172;','chat')+'</button>'+
     '<button class="send-btn" '+(isProcessing?'disabled':'')+' onmousedown="event.preventDefault()" onclick="submitManualText()">'+(isProcessing?'<span class="spinner"></span>':ic('➤','send'))+'</button>'+
-    '<button class="plus-btn" onclick="openAttachMenu()" title="'+t('attach_photo')+'">'+ic('+','plus')+'</button>'+
     '</div></div>';
+  setHdBottom();
 }
 function buildAllProjectsSummary(){
   return projects.map(p=>{
@@ -2326,7 +2356,7 @@ function confirmDeleteSelectedProjects(){
 function filterProjectList(v){ projectSearchQuery = v; renderProjectList(); }
 function openProjectSwitcher(){
   projectSearchQuery = '';
-  const backdrop=document.createElement('div'); backdrop.className='modal-backdrop'; backdrop.id='modalBackdrop';
+  const backdrop=document.createElement('div'); backdrop.className='modal-backdrop proj-screen'; backdrop.id='modalBackdrop';
   backdrop.innerHTML = '<div class="modal" style="padding-top:0;">'+
     '<div style="position:sticky; top:0; background:var(--surface); z-index:2; padding-top:20px; margin:0 -18px; padding-left:18px; padding-right:18px;">'+
     '<button class="modal-close-x" onclick="closeModal()">✕</button><h2 style="margin-bottom:10px;">'+t('projects_title')+'</h2>'+
@@ -2494,11 +2524,67 @@ function dropSettingsSubEntry(){
   overlayStack.splice(i,1);
   return true;
 }
+/* v8: polje za unos se pri pisanju raširi od donje ivice zaglavlja do dugmadi (kao u prevodiocu).
+   Otvoreno = polje u fokusu (CSS :focus-within). Posle slanja se skupi (body.mi-rest), tastatura ostaje;
+   prvo slovo ili dodir na polje ga ponovo raširi. Zatvara: dodir van polja i van „Pošalji“, korak nazad. */
+function sizeManualInput(){
+  const inp = document.getElementById('manualInput'); if(!inp) return;
+  const row = inp.closest('.entry-row-input'); const tb = document.querySelector('#app .topbar');
+  if(!row || !tb) return;
+  const h = Math.max(44, Math.round(row.getBoundingClientRect().bottom - tb.getBoundingClientRect().bottom - 8));
+  document.documentElement.style.setProperty('--mi-open-h', h+'px');
+}
+let miBaseH = 0, miKbOpen = false;
+document.addEventListener('focusin', (e)=>{
+  if(!e.target || e.target.id!=='manualInput') return;
+  if(miBaseH===0 || window.innerHeight > miBaseH) miBaseH = window.innerHeight;
+  document.documentElement.classList.remove('mi-no-anim');
+  sizeManualInput();
+});
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id==='manualInput' && document.body.classList.contains('mi-rest')){
+    document.body.classList.remove('mi-rest'); document.documentElement.classList.remove('mi-no-anim'); sizeManualInput();
+  }
+});
+document.addEventListener('pointerdown', (e)=>{
+  const inp = document.getElementById('manualInput');
+  if(!inp) return;
+  if(e.target.closest && e.target.closest('#manualInput')){
+    if(document.body.classList.contains('mi-rest')){ document.body.classList.remove('mi-rest'); document.documentElement.classList.remove('mi-no-anim'); sizeManualInput(); }
+    return;
+  }
+  if(document.activeElement!==inp) return;
+  if(e.target.closest && e.target.closest('.bottom-bar .send-btn')) return;
+  inp.blur();
+}, true);
+window.addEventListener('resize', ()=>{
+  setHdBottom();
+  const inp = document.getElementById('manualInput');
+  if(!inp || document.activeElement!==inp){ miKbOpen=false; miBaseH = window.innerHeight; return; }
+  /* interactive-widget=resizes-content: tastatura smanjuje prozor; kad se spusti (korak nazad), polje se zatvara */
+  if(window.innerHeight < miBaseH - 100){ miKbOpen = true; }
+  else if(miKbOpen){ miKbOpen = false; inp.blur(); return; }
+  document.documentElement.classList.add('mi-no-anim');
+  sizeManualInput();
+});
+/* v8: na početnom ekranu prozor počinje tačno ispod zaglavlja (zaglavlje ostaje vidljivo, ne tamni).
+   Prozori preko celog ekrana (podešavanja, projekti, izmeni stavku, čet) se ne sidre, a ni prozor otvoren preko njih. */
+const FULL_SCREENS = '.settings-screen, .proj-screen, .ed-backdrop, .chat-overlay';
+function setHdBottom(){
+  const tb = document.querySelector('#app .topbar');
+  if(tb) document.documentElement.style.setProperty('--hd-bottom', Math.round(tb.getBoundingClientRect().bottom)+'px');
+}
+function anchorUnderHeader(backdrop){
+  if(backdrop.matches(FULL_SCREENS) || document.querySelector(FULL_SCREENS)) return;
+  setHdBottom();
+  backdrop.classList.add('anch');
+}
 function appendModalBackdrop(backdrop, closeFn){
   const existingSame = document.getElementById(backdrop.id);
   if(existingSame){
     /* novi prozor zamenjuje postojeći: koristi isti korak istorije umesto da doda novi */
     existingSame.remove();
+    anchorUnderHeader(backdrop);
     document.body.appendChild(backdrop);
     document.body.style.overflow = 'hidden';
     if(dropSettingsSubEntry()){
@@ -2506,6 +2592,7 @@ function appendModalBackdrop(backdrop, closeFn){
     }
     return;
   }
+  anchorUnderHeader(backdrop);
   document.body.appendChild(backdrop);
   document.body.style.overflow = 'hidden';
   pushOverlayEntry(closeModalDomOnly);
@@ -2551,6 +2638,7 @@ function showConfirmModal(message, onYes, yesLabel, noLabel, yesClass){
     '<button class="cancel-btn" onclick="closeConfirmModal()">'+escapeHtml(noLabel)+'</button>'+
     '<button class="'+yesClass+'" onclick="runConfirmYes()">'+escapeHtml(yesLabel)+'</button>'+
     '</div></div>';
+  anchorUnderHeader(backdrop);
   document.body.appendChild(backdrop);
   document.body.style.overflow = 'hidden';
   pushOverlayEntry(closeConfirmModalDomOnly);
