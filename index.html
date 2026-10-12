@@ -123,27 +123,8 @@
 
 
   .empty{ text-align:center; color:var(--text-dim); padding:50px 24px; font-size:14.5px; line-height:1.7; }
-  #statusBanner{
-    position:fixed; top:0; left:0; right:0; z-index:50;
-    max-width:560px; margin:0 auto;
-    padding:12px 16px; font-size:13.5px; font-weight:600; line-height:1.5;
-    display:none; align-items:flex-start; gap:10px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.15);
-  }
-  #statusBanner.show{ display:flex; }
-  #statusBanner.error{ background:#B3432D; color:#fff; }
-  #statusBanner.info{ background:#163B69; color:#fff; }
-  #statusBanner .closeBtn{ margin-left:auto; flex:none; background:none; border:none; color:#fff; font-size:16px; cursor:pointer; opacity:0.8; }
   .backup-reminder-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:#B3432D; color:#fff; font-size:12px; font-weight:600; padding:8px 10px; border-radius:9px; margin-bottom:8px; }
   .backup-reminder-row button{ flex:none; background:rgba(255,255,255,0.18); color:#fff; border:1px solid rgba(255,255,255,0.35); padding:6px 11px; border-radius:7px; font-weight:700; font-size:11.5px; font-family:inherit; cursor:pointer; }
-  #undoToast{
-    position:fixed; left:14px; right:14px; bottom:172px; max-width:532px; margin:0 auto; z-index:45;
-    background:#20242B; color:#fff; border-radius:12px; padding:11px 14px;
-    display:none; align-items:center; justify-content:space-between; gap:10px;
-    font-size:13px; box-shadow:0 4px 14px rgba(0,0,0,0.3);
-  }
-  #undoToast.show{ display:flex; }
-  #undoToast button{ background:var(--gold); color:var(--on-gold); border:none; border-radius:8px; padding:7px 13px; font-weight:700; font-size:12.5px; cursor:pointer; flex:none; }
   .search-row{ padding:0 12px; margin-top:7px; display:flex; gap:7px; align-items:center; }
   .search-row input{ flex:1; min-width:0; padding:9px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg-card); color:var(--text); font-size:13.5px; font-family:inherit; }
   .search-close-btn{ flex:none; width:36px; height:36px; border-radius:10px; border:1px solid var(--line); background:var(--bg-card); color:var(--coral); font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; }
@@ -198,19 +179,7 @@
   @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(179,67,45,0.4);} 50%{ box-shadow:0 0 0 8px rgba(179,67,45,0);} }
   .send-btn{ width:58px; height:58px; border-radius:50%; border:none; background:var(--accent); color:var(--on-accent); font-size:22px; cursor:pointer; flex:none; display:flex; align-items:center; justify-content:center; padding:0; }
 
-  .pending-card{ background:var(--warm); border:1.5px solid var(--gold); border-radius:13px; padding:10px 12px; }
-  .pending-card .row{ display:flex; gap:7px; margin-bottom:7px; align-items:center; }
-  .pending-card input{ background:var(--surface); border:1px solid var(--line); border-radius:8px; color:var(--text); padding:7px 9px; font-size:13.5px; font-family:inherit; }
-  .pending-card .f-opis{ flex:1; min-width:0; }
-  .pending-card .f-iznos{ width:80px; }
-  .pending-card .f-valuta{ width:56px; text-transform:uppercase; text-align:center; }
-  .pending-card .f-kat{ width:90px; }
-  .pending-actions{ display:flex; align-items:center; gap:7px; }
-  .pending-actions .countdown{ width:26px; height:26px; border-radius:50%; position:relative; flex:none; background:conic-gradient(var(--gold) var(--pct,0%), var(--warm-line) 0); }
-  .pending-actions button{ border:none; border-radius:9px; padding:9px 13px; font-size:12.5px; font-weight:700; cursor:pointer; }
-  .btn-cancel{ background:var(--bg-elevated); color:var(--text); }
-  .btn-save{ background:var(--gold); color:var(--on-gold); flex:1; }
-  .batch-remove{ background:var(--bg-elevated); color:var(--text); padding:7px 9px !important; }
+
 
   .modal-backdrop{ position:fixed; inset:0; background:rgba(20,20,20,0.5); display:flex; align-items:center; justify-content:center; z-index:30; }
   .modal-backdrop.small-modal{ align-items:center; padding:0; }
@@ -592,6 +561,20 @@ body:not(.mi-rest) .entry-row-input:focus-within textarea{ white-space:pre-wrap;
 /* ostali prozori na početnom ekranu: gornja ivica tačno ispod zaglavlja, visina po sadržaju (najviše do dna/tastature) */
 .modal-backdrop.anch{ align-items:flex-start; background:linear-gradient(to bottom, transparent var(--hd-bottom,0px), rgba(20,20,20,.5) var(--hd-bottom,0px)); }
 .modal-backdrop.anch .modal, .modal-backdrop.anch.small-modal .modal{ top:calc(var(--hd-bottom,0px) + 8px); transform:translateX(-50%); max-height:calc(100% - var(--hd-bottom,0px) - 16px); }
+
+/* ===== v9: obaveštenje gore (po uzoru na Stanje guma v4), bez „Vrati“ ===== */
+:root{ --note-c:var(--hd-acc, var(--blue-deep)); --note-h:100px; }
+.note-top{ display:none; position:fixed; top:0; left:0; right:0; z-index:60; padding:8px 12px 0; box-sizing:border-box; background:var(--bg); pointer-events:none; }
+.note-top.on{ display:block; }
+.note-bar{ max-width:560px; margin:0 auto; min-height:92px; box-sizing:border-box; display:flex; align-items:center; gap:14px; padding:10px 16px; border-radius:14px; background:color-mix(in srgb, var(--note-c) 25%, var(--bg)); border:1.5px solid color-mix(in srgb, var(--note-c) 55%, var(--bg)); color:var(--text); font-size:21px; font-weight:600; line-height:1.2; overflow:hidden; }
+.note-bar .note-ic{ flex:none; width:40px; height:40px; box-sizing:border-box; border-radius:50%; border:2px solid var(--note-c); color:var(--note-c); display:flex; align-items:center; justify-content:center; }
+.note-bar.warn{ --note-c:var(--coral); }
+.note-bar .note-tx{ min-width:0; flex:1; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; }
+.note-bar.warn .note-tx{ font-size:17px; -webkit-line-clamp:4; }
+body.noting #app{ padding-top:var(--note-h); }
+body.noting #app .topbar{ top:var(--note-h); }
+body.noting .chat-overlay{ top:var(--note-h); }
+body.noting .modal-backdrop.settings-screen .modal, body.noting .modal-backdrop.proj-screen .modal, body.noting .modal-backdrop.ed-backdrop .modal.ed-modal{ top:var(--note-h); height:calc(100% - var(--note-h)); }
 </style>
 </head>
 <body>
@@ -607,8 +590,7 @@ body:not(.mi-rest) .entry-row-input:focus-within textarea{ white-space:pre-wrap;
   </div>
 </div>
 
-<div id="statusBanner"></div>
-<div id="undoToast"></div>
+<div class="note-top" id="noteTop"></div>
 <div id="app"></div>
 
 <script>
@@ -652,9 +634,6 @@ function setSearchQuery(v){
   const el = document.getElementById('searchInput');
   if(el){ el.focus(); try{ el.setSelectionRange(cursorPos, cursorPos); }catch(e){} }
 }
-let pendingItems = null;
-let pendingTimer = null;
-let pendingPct = 0;
 let isProcessing = false;
 let selectedPhoto = null; // { name, dataUrl } - izabrana fotografija racuna, ceka slanje ka AI
 const LANGS = [
@@ -823,6 +802,7 @@ const I18N = {
     ai_action_confirm: 'potvrdi',
     ai_action_cancel: 'odbaci',
     ai_action_applied: 'gotovo - izmene su sačuvane.',
+    note_saved: 'Sačuvano:', note_saved_n: 'Sačuvano', note_edited: 'Izmene sačuvane:', note_deleted: 'Obrisano:', note_proj_deleted: 'Obrisan projekat:',
     ai_action_cancelled: 'u redu, izmene nisu primenjene.'
   },
   'en-US': {
@@ -977,6 +957,7 @@ const I18N = {
     ai_action_confirm: 'confirm',
     ai_action_cancel: 'dismiss',
     ai_action_applied: 'done - changes saved.',
+    note_saved: 'Saved:', note_saved_n: 'Saved', note_edited: 'Changes saved:', note_deleted: 'Deleted:', note_proj_deleted: 'Project deleted:',
     ai_action_cancelled: 'ok, changes were not applied.'
   }
 };
@@ -1011,62 +992,7 @@ function fmtNum(n){
 }
 function fmtAmt(n){ const s=fmtNum(n); return n<0 ? '<span class="neg-amt">'+s+'</span>' : s; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-let bannerTimeout = null;
-function showBanner(msg, type){
-  type = type || 'error';
-  const b = document.getElementById('statusBanner');
-  b.className = 'show ' + type;
-  b.innerHTML = '<span>'+escapeHtml(msg)+'</span><button class="closeBtn" onclick="hideBanner()">✕</button>';
-  clearTimeout(bannerTimeout);
-  bannerTimeout = setTimeout(hideBanner, 8000);
-}
-function hideBanner(){
-  const b = document.getElementById('statusBanner');
-  if(b){ b.className=''; }
-  clearTimeout(bannerTimeout);
-}
 
-let lastDeleted = null;
-let undoTimeout = null;
-function showUndoToast(message){
-  const t = document.getElementById('undoToast');
-  if(!t) return;
-  t.className = 'show';
-  t.innerHTML = '<span>'+escapeHtml(message)+'</span><button onclick="performUndo()">poništi</button>';
-  clearTimeout(undoTimeout);
-  undoTimeout = setTimeout(hideUndoToast, 6000);
-}
-function hideUndoToast(){
-  const t = document.getElementById('undoToast');
-  if(t) t.className = '';
-  clearTimeout(undoTimeout);
-  lastDeleted = null;
-}
-function performUndo(){
-  if(!lastDeleted) return;
-  if(lastDeleted.type === 'entry'){
-    if(lastDeleted.projectId === currentProjectId){
-      entries.push(lastDeleted.entry);
-      persistEntries();
-    } else {
-      const e = lsGet('entries:'+lastDeleted.projectId);
-      let arr = (e && e.value) ? JSON.parse(e.value) : [];
-      arr.push(lastDeleted.entry);
-      lsSet('entries:'+lastDeleted.projectId, JSON.stringify(arr));
-    }
-  } else if(lastDeleted.type === 'project'){
-    projects.push(lastDeleted.project);
-    persistProjects();
-    lsSet('entries:'+lastDeleted.project.id, JSON.stringify(lastDeleted.entries));
-    lsSet('rates:'+lastDeleted.project.id, JSON.stringify(lastDeleted.rates));
-  }
-  const t = document.getElementById('undoToast');
-  if(t) t.className = '';
-  clearTimeout(undoTimeout);
-  lastDeleted = null;
-  render();
-  showBanner(t('restored'), 'info');
-}
 
 
 
@@ -1365,7 +1291,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 8; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 9; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -1508,18 +1434,55 @@ function createProject(name, language){
   const np = { id: uid('p'), name: name || t('default_project_name'), language: language||'auto', baseCurrency: baseOf(currentProject()), activeDate: todayISO(), createdAt: Date.now() };
   projects.push(np); persistProjects(); switchProject(np.id);
 }
+/* v9: obaveštenje gore (po uzoru na Stanje guma v4), bez „Vrati“ (Zoranova odluka 12.10.).
+   Stoji ms (4 s, posle čuvanja/izmene 5 s, greška 6 s) i samo nestane; dodir ga ne zatvara i propušta dodir.
+   Ako vreme istekne dok je prst na ekranu, čeka da se prst podigne. Dok stoji, ekran se spusti za visinu obaveštenja. */
+let _note = null, _noteTimer = null, _noteWait = false, _ptrDown = 0;
+function showNote(msg, opt){
+  opt = opt || {};
+  _note = { text: String(msg), warn: !!opt.warn };
+  clearTimeout(_noteTimer); _noteWait = false;
+  _noteTimer = setTimeout(noteTimeUp, opt.ms || (opt.warn ? 6000 : 4000));
+  renderNote();
+}
+function showBanner(msg, type){ showNote(msg, { warn: (type||'error')!=='info' }); }
+function noteTimeUp(){ if(_ptrDown > 0){ _noteWait = true; return; } hideNote(); }
+function hideNote(){ _note = null; clearTimeout(_noteTimer); _noteWait = false; renderNote(); }
+function renderNote(){
+  const top = document.getElementById('noteTop'); if(!top) return;
+  top.innerHTML = '';
+  top.classList.toggle('on', !!_note);
+  document.body.classList.toggle('noting', !!_note);
+  if(_note){
+    const bar = document.createElement('div');
+    bar.className = 'note-bar' + (_note.warn ? ' warn' : '');
+    bar.innerHTML = '<span class="note-ic">' + (_note.warn
+      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="6.5" x2="12" y2="13.5"></line><line x1="12" y1="17.5" x2="12.01" y2="17.5"></line></svg>'
+      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>')
+      + '</span><span class="note-tx"></span>';
+    bar.querySelector('.note-tx').textContent = _note.text;
+    top.appendChild(bar);
+    document.documentElement.style.setProperty('--note-h', top.offsetHeight + 'px');
+  }
+  /* zaglavlje se pomerilo: prozori ispod zaglavlja i rašireno polje za unos prate novu ivicu */
+  setHdBottom();
+  if(document.activeElement && document.activeElement.id==='manualInput'){ document.documentElement.classList.add('mi-no-anim'); sizeManualInput(); }
+}
+document.addEventListener('pointerdown', ()=>{ _ptrDown++; }, true);
+['pointerup','pointercancel'].forEach(ev => document.addEventListener(ev, ()=>{
+  _ptrDown = Math.max(0, _ptrDown - 1);
+  if(_ptrDown === 0 && _noteWait) hideNote();
+}, true));
+function itemsWord(n){
+  if(resolveAppLanguage()==='sr-RS'){
+    const m10=n%10, m100=n%100;
+    return (m10===1 && m100!==11) ? 'stavka' : (m10>=2 && m10<=4 && (m100<12 || m100>14) ? 'stavke' : 'stavki');
+  }
+  return n===1 ? 'item' : 'items';
+}
+function entryLabel(e){ return e.opis+' '+fmtNum(e.iznos)+' '+String(normCur(e.valuta)||'').toLowerCase(); }
 function deleteProject(pid){
   const proj = projects.find(p=>p.id===pid);
-  if(proj){
-    const e = lsGet('entries:'+pid);
-    const r = lsGet('rates:'+pid);
-    lastDeleted = {
-      type: 'project',
-      project: JSON.parse(JSON.stringify(proj)),
-      entries: (e && e.value) ? JSON.parse(e.value) : [],
-      rates: (r && r.value) ? JSON.parse(r.value) : {}
-    };
-  }
   projects = projects.filter(p=>p.id!==pid);
   lsDelete('entries:'+pid);
   lsDelete('rates:'+pid);
@@ -1527,7 +1490,7 @@ function deleteProject(pid){
   if(projects.length===0){ createProject(null,'auto'); }
   else if(currentProjectId===pid){ switchProject(projects[0].id); }
   else { render(); }
-  if(proj) showUndoToast('projekat "'+proj.name+'" obrisan.');
+  if(proj) showNote(t('note_proj_deleted')+' '+proj.name);
 }
 function setActiveDate(iso){
   const proj = currentProject();
@@ -1559,10 +1522,9 @@ function updateEntry(id, data){
 }
 function deleteEntry(id){
   const e = entries.find(x=>x.id===id);
-  if(e){ lastDeleted = { type:'entry', projectId: currentProjectId, entry: JSON.parse(JSON.stringify(e)) }; }
   entries = entries.filter(x=>x.id!==id);
   persistEntries(); render();
-  if(e) showUndoToast('stavka "'+e.opis+'" obrisana.');
+  if(e) showNote(t('note_deleted')+' '+entryLabel(e));
 }
 
 /* ---------- AI PARSING ---------- */
@@ -1709,12 +1671,12 @@ async function handleIncomingItems(parseFn){
       render();
       showConfirmModal(
         'već postoji "'+dup.opis+' '+fmtNum(dup.iznos)+' '+dup.valuta.toLowerCase()+'" na '+dmFromISO(dup.datum)+'. dodati ponovo, ili je ovo greška?',
-        ()=>{ startPendingSingle(items[0]); },
+        ()=>{ saveRecognized(items); },
         'dodaj ipak', 'otkaži', 'create-btn'
       );
       return;
     }
-    startPendingSingle(items[0]);
+    saveRecognized(items);
   } else {
     const dupCount = items.filter(it=>findDuplicateEntry(it)).length;
     if(dupCount>0){
@@ -1724,12 +1686,12 @@ async function handleIncomingItems(parseFn){
         : (dupCount+' od '+items.length+' prepoznatih stavki već postoji u projektu (obeleženo crveno ispod). dodati sve ipak, ili je ovo greška?');
       showConfirmModal(
         msg,
-        ()=>{ startPendingBatch(items); },
+        ()=>{ saveRecognized(items); },
         'dodaj ipak', 'otkaži', 'create-btn'
       );
       return;
     }
-    startPendingBatch(items);
+    saveRecognized(items);
   }
 }
 async function handleIncomingText(text){
@@ -1746,28 +1708,18 @@ async function handleIncomingImage(){
   await handleIncomingItems(()=>parseImageWithAI(photo.dataUrl, caption));
 }
 
-/* ---------- PENDING CONFIRM ---------- */
-function startPendingSingle(item){
-  clearInterval(pendingTimer); pendingItems=[item]; pendingPct=0; render();
-  const duration=5000, stepMs=50; let elapsed=0;
-  pendingTimer = setInterval(()=>{
-    elapsed+=stepMs; pendingPct=Math.min(100,(elapsed/duration)*100);
-    const ring=document.querySelector('.countdown'); if(ring) ring.style.setProperty('--pct',pendingPct+'%');
-    if(elapsed>=duration){ clearInterval(pendingTimer); confirmPending(); }
-  }, stepMs);
-}
-function startPendingBatch(items){ clearInterval(pendingTimer); pendingItems=items; pendingPct=-1; render(); }
-function refocusInput(){
-  const inp = document.getElementById('manualInput');
-  if(inp) inp.focus();
-}
-function cancelPending(){ clearInterval(pendingTimer); pendingItems=null; render(); refocusInput(); }
-function confirmPending(){
-  clearInterval(pendingTimer); if(!pendingItems) return;
-  const items=pendingItems; pendingItems=null;
+/* v9: prepoznat trošak se čuva odmah (bez kartice potvrde); obaveštenje gore kaže šta je sačuvano.
+   Ispravka ide dodirom na stavku (izmeni stavku). */
+function saveRecognized(items){
   const newIds = commitEntries(items);
   refocusInput();
   scrollToEntry(newIds[newIds.length-1]);
+  const saved = entries.find(e=>e.id===newIds[0]);
+  showNote(items.length===1 && saved ? (t('note_saved')+' '+entryLabel(saved)) : (t('note_saved_n')+' '+items.length+' '+itemsWord(items.length)), { ms:5000 });
+}
+function refocusInput(){
+  const inp = document.getElementById('manualInput');
+  if(inp) inp.focus();
 }
 function scrollToEntry(id){
   setTimeout(()=>{
@@ -1779,19 +1731,6 @@ function scrollToEntry(id){
     const targetY = window.scrollY + rowRect.bottom - (window.innerHeight - bottomBarHeight) + 14;
     window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
   }, 80);
-}
-function editPendingField(idx, field, value){
-  if(!pendingItems) return;
-  if(field==='iznos') value = parseNum(value)||0;
-  pendingItems[idx][field]=value;
-  if(pendingPct>=0 && pendingPct<100){ clearInterval(pendingTimer); pendingPct=100; }
-}
-function removeBatchItem(idx){
-  if(!pendingItems) return;
-  pendingItems.splice(idx,1);
-  if(pendingItems.length===0) pendingItems=null;
-  render();
-  refocusInput();
 }
 async function submitManualText(){
   if(selectedPhoto){
@@ -1943,42 +1882,6 @@ function render(){
     }
   }
 
-  let pendingHtml = '';
-  if(pendingItems){
-    if(pendingPct>=0){
-      const it = pendingItems[0];
-      pendingHtml = '<div class="pending-card" data-chain>'+
-        '<div class="row">'+
-        '<input class="f-opis" value="'+escapeHtml(it.opis)+'" oninput="editPendingField(0,\'opis\',this.value)">'+
-        '<input class="f-iznos" type="text" inputmode="decimal" value="'+numToField(it.iznos)+'" oninput="editPendingField(0,\'iznos\',this.value)">'+
-        '<input class="f-valuta" value="'+it.valuta+'" oninput="editPendingField(0,\'valuta\',this.value.toUpperCase())">'+
-        '</div><div class="row">'+
-        '<input class="f-kat" value="'+escapeHtml(it.kategorija||'')+'" placeholder="'+t('category_placeholder')+'" oninput="editPendingField(0,\'kategorija\',this.value)">'+
-        '</div><div class="pending-actions">'+
-        '<div class="countdown" style="--pct:'+pendingPct+'%"></div>'+
-        '<button class="btn-cancel" onclick="cancelPending()">'+t('cancel')+'</button>'+
-        '<button class="btn-save" onclick="confirmPending()">'+t('save_now')+'</button>'+
-        '</div></div>';
-    } else {
-      pendingHtml = '<div class="pending-card">'+
-        '<div style="font-size:12.5px;color:var(--gold-deep);font-weight:700;margin-bottom:7px;">'+t('recognized_items')+' '+pendingItems.length+' '+t('review_and_save')+'</div>'+
-        pendingItems.map((it,idx)=>{
-          const dup = findDuplicateEntry(it);
-          const dupWarning = dup ? ('<div style="font-size:10.5px;color:var(--coral);font-weight:700;margin:-3px 0 6px;">⚠ '+t('duplicate_exists')+' "'+escapeHtml(dup.opis)+' '+fmtNum(dup.iznos)+' '+dup.valuta.toLowerCase()+'" '+t('on_date')+' '+dmFromISO(dup.datum)+' - '+t('possible_duplicate')+'</div>') : '';
-          return dupWarning +
-          '<div class="row" data-chain>'+
-          '<input class="f-opis" value="'+escapeHtml(it.opis)+'" oninput="editPendingField('+idx+',\'opis\',this.value)">'+
-          '<input class="f-iznos" type="text" inputmode="decimal" value="'+numToField(it.iznos)+'" oninput="editPendingField('+idx+',\'iznos\',this.value)">'+
-          '<input class="f-valuta" value="'+it.valuta+'" oninput="editPendingField('+idx+',\'valuta\',this.value.toUpperCase())">'+
-          '<button class="batch-remove" onclick="removeBatchItem('+idx+')">✕</button></div>';
-        }).join('')+
-        '<div class="pending-actions">'+
-        '<button class="btn-cancel" onclick="cancelPending()">'+t('cancel_all')+'</button>'+
-        '<button class="btn-save" onclick="confirmPending()">'+t('save_all')+' ('+pendingItems.length+')</button>'+
-        '</div></div>';
-    }
-  }
-
   app.innerHTML =
     '<div class="topbar">'+
     backupReminderHtml()+
@@ -2004,7 +1907,7 @@ function render(){
     '</div>'+
     '<div class="list-area">'+listHtml+
     '</div>'+
-    '<div class="bottom-bar">'+pendingHtml+
+    '<div class="bottom-bar">'+
     (selectedPhoto ? ('<div class="photo-preview-row"><img src="'+selectedPhoto.dataUrl+'"><span class="pp-name">'+t('photo_selected')+': '+escapeHtml(selectedPhoto.name)+'</span><button class="pp-remove" onclick="clearSelectedPhoto()">✕ '+t('remove_photo')+'</button></div>') : '')+
     '<div class="entry-row entry-row-input">'+
     '<div class="entry-input-wrap">'+
@@ -2944,6 +2847,7 @@ function saveEntryFromModal(id){
   const napomena=document.getElementById('editNapomena').value.trim();
   closeModal();
   updateEntry(id, {datum: isoFromParts(d,m,y), opis, iznos, valuta, kategorija, napomena});
+  showNote(t('note_edited')+' '+opis, { ms:5000 });
 }
 function deleteEntryFromModal(id){
   showConfirmModal(t('confirm_delete_entry'), ()=>{
