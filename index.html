@@ -649,6 +649,14 @@ body.noting .modal-backdrop.settings-screen .modal, body.noting .modal-backdrop.
 .set-group{ font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--hd-acc, var(--blue-deep)); margin:6px 4px 7px; }
 .set-group ~ .set-group{ margin-top:16px; }
 .set-tile.danger{ margin-top:0; }
+
+/* ===== v18: pločice Podešavanja što niže, a pregledne (48 px = najmanja dodirna površina po Androidu) ===== */
+.set-body .set-tile{ min-height:48px; padding:6px 12px; margin:0 0 6px; gap:11px; border-radius:12px; }
+.set-body .set-tile .tile-icon{ font-size:20px; width:26px; }
+.set-body .set-tile .tile-title{ font-size:15px; line-height:1.2; }
+.set-body .set-tile .tile-sub{ font-size:12px; line-height:1.2; margin-top:1px; }
+.set-body .set-group{ margin:4px 4px 6px; }
+.set-body .set-group ~ .set-group{ margin-top:12px; }
 </style>
 </head>
 <body>
@@ -1448,7 +1456,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 17; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 18; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
