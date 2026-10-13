@@ -657,6 +657,16 @@ body.noting .modal-backdrop.settings-screen .modal, body.noting .modal-backdrop.
 .set-body .set-tile .tile-sub{ font-size:12px; line-height:1.2; margin-top:1px; }
 .set-body .set-group{ margin:4px 4px 6px; }
 .set-body .set-group ~ .set-group{ margin-top:12px; }
+
+/* ===== v18: stavke troškova na početnom ekranu niže (Ponoć, Bankarstvo, Crna, Koža; Klasična je već zbijena) ===== */
+html[data-theme="ponoc"] table.entries-table td, html[data-theme="banka"] table.entries-table td,
+html[data-theme="crna"] table.entries-table td, html[data-theme="koza"] table.entries-table td{ padding-top:7px; padding-bottom:7px; line-height:1.25; }
+html[data-theme="ponoc"] td.col-opis .meta, html[data-theme="banka"] td.col-opis .meta,
+html[data-theme="crna"] td.col-opis .meta, html[data-theme="koza"] td.col-opis .meta{ margin-top:1px; line-height:1.25; }
+html[data-theme] td.col-amt .sub{ line-height:1.2; }
+html[data-theme="ponoc"] tr.total-row td{ padding-top:6px; padding-bottom:6px; }
+html[data-theme="ponoc"] table.entries-table tr[id] td{ padding-top:6px; padding-bottom:6px; }
+html[data-theme="banka"] tr.total-row td, html[data-theme="crna"] tr.total-row td, html[data-theme="koza"] tr.total-row td{ padding-top:8px; padding-bottom:8px; }
 </style>
 </head>
 <body>
