@@ -95,7 +95,7 @@
   .hd-title{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; cursor:pointer; }
   .hd-name{ font-size:18px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
   .hd-chev{ font-size:12px; color:var(--text-dim); flex:none; }
-  .hd-date{ font-size:13px; font-weight:600; color:var(--text-dim); flex:none; border-left:1px solid var(--line); padding:4px 0 4px 8px; }
+  .hd-date{ font-size:13px; font-weight:600; color:var(--text-dim); flex:none; border-left:1px solid var(--line); padding:4px 0 4px 8px; cursor:pointer; }
   .hd-icons{ display:flex; align-items:flex-start; margin-top:11px; }
   .hd-ico{ flex:1 1 0; min-width:0; display:flex; flex-direction:column; align-items:center; gap:6px; padding:0; border:none; background:none; cursor:pointer; font-family:inherit; }
   .topbar .icon-btn.hd-sq{ width:54px; height:54px; border-radius:16px; font-size:21px; }
@@ -735,7 +735,7 @@ const I18N = {
     items_short: 'st.',
     manual_input_placeholder: 'ukucaj ili koristi mikrofon na tastaturi...',
     project_settings_title: 'podešavanja projekta',
-    section_basic: 'naziv i jezik projekta',
+    section_basic: 'podaci o projektu',
     project_name: 'naziv projekta',
     app_language: 'jezik aplikacije',
     save: 'sačuvaj',
@@ -806,10 +806,9 @@ const I18N = {
     label_note: 'napomena',
     confirm_delete_entry: 'obrisati ovu stavku troška?',
     no_projects_found: 'nema projekata koji odgovaraju pretrazi.',
-    created_on: 'napravljen',
     selected: 'izabrano',
     export_short: 'izvezi',
-    delete_short: 'obriši', rename_short: 'preimenuj', rename_title: 'Preimenuj projekat', note_renamed: 'Preimenovano:', enter_project_name: 'Unesi naziv projekta',
+    delete_short: 'obriši', rename_short: 'izmeni', rename_title: 'Izmeni projekat', enter_project_name: 'Unesi naziv projekta',
     exported_projects: 'izvezeno',
     projects_word: 'projekata',
     confirm_delete_projects: 'obrisati',
@@ -817,7 +816,7 @@ const I18N = {
     projects_deleted: 'projekata obrisano.',
     projects_title: 'projekti',
     search_projects_placeholder: '🔍 pretraži projekte...',
-    long_press_hint: 'dug dodir na projekat: preimenuj, izvezi ili obriši',
+    long_press_hint: 'dug dodir na projekat: izmeni, izvezi ili obriši',
     restored: 'vraćeno.',
     ai_processing_error: 'greška pri obradi. pokušaj ponovo.',
     ai_no_items_recognized: 'AI nije prepoznao nijednu stavku iz tog teksta. probaj drugačiju formulaciju (npr. "naziv 10 eur").',
@@ -862,7 +861,8 @@ const I18N = {
     ai_action_cancel: 'odbaci',
     ai_action_applied: 'gotovo - izmene su sačuvane.',
     guide_tile: 'uputstvo', guide_sub: 'kako se koristi aplikacija', guide_intro: 'dodirni naslov da pročitaš objašnjenje.',
-    hd_since: 'od', date_invalid: 'Taj datum ne postoji:',
+    hd_since: 'od', date_invalid: 'Taj datum ne postoji:', proj_date: 'datum projekta', note_proj_edited: 'Izmenjeno:',
+    lang_hint: 'jezik važi za projekat koji je otvoren: na njemu su natpisi aplikacije i opisi troškova koje piše AI. „automatski“ uzima jezik telefona.',
     tr_tile: 'korpa', tr_empty_sub: 'prazna', tr_in: 'u korpi', tr_keeps: 'čuva', tr_days: 'dana', tr_day: 'dan',
     tr_days_label: 'čuvaj obrisano (dana)', tr_hint: 'obrisani troškovi i projekti čekaju ovde. kad prođe ovoliko dana, trajno se brišu pri otvaranju aplikacije. korpa se ne čuva u bekapu.',
     tr_is_empty: 'korpa je prazna.', tr_sel_all: 'izaberi sve', tr_sel_none: 'poništi izbor', tr_empty_btn: 'isprazni korpu',
@@ -899,7 +899,7 @@ const I18N = {
     items_short: 'items',
     manual_input_placeholder: 'type or use the keyboard microphone...',
     project_settings_title: 'project settings',
-    section_basic: 'project name and language',
+    section_basic: 'project details',
     project_name: 'project name',
     app_language: 'app language',
     save: 'save',
@@ -970,10 +970,9 @@ const I18N = {
     label_note: 'note',
     confirm_delete_entry: 'delete this expense item?',
     no_projects_found: 'no projects match the search.',
-    created_on: 'created',
     selected: 'selected',
     export_short: 'export',
-    delete_short: 'delete', rename_short: 'rename', rename_title: 'Rename project', note_renamed: 'Renamed:', enter_project_name: 'Enter a project name',
+    delete_short: 'delete', rename_short: 'edit', rename_title: 'Edit project', enter_project_name: 'Enter a project name',
     exported_projects: 'exported',
     projects_word: 'projects',
     confirm_delete_projects: 'delete',
@@ -981,7 +980,7 @@ const I18N = {
     projects_deleted: 'projects deleted.',
     projects_title: 'projects',
     search_projects_placeholder: '🔍 search projects...',
-    long_press_hint: 'long-press a project: rename, export or delete',
+    long_press_hint: 'long-press a project: edit, export or delete',
     restored: 'restored.',
     ai_processing_error: 'error while processing. please try again.',
     ai_no_items_recognized: 'the AI couldn\'t recognize any item in that text. try a different phrasing (e.g. "name 10 eur").',
@@ -1026,7 +1025,8 @@ const I18N = {
     ai_action_cancel: 'dismiss',
     ai_action_applied: 'done - changes saved.',
     guide_tile: 'user guide', guide_sub: 'how to use the app', guide_intro: 'tap a title to read the explanation.',
-    hd_since: 'since', date_invalid: 'That date does not exist:',
+    hd_since: 'since', date_invalid: 'That date does not exist:', proj_date: 'project date', note_proj_edited: 'Edited:',
+    lang_hint: 'the language applies to the open project: the app labels and the expense descriptions written by AI. “automatic” uses the phone language.',
     tr_tile: 'trash', tr_empty_sub: 'empty', tr_in: 'in trash', tr_keeps: 'keeps', tr_days: 'days', tr_day: 'day',
     tr_days_label: 'keep deleted (days)', tr_hint: 'deleted expenses and projects wait here. after this many days they are deleted for good when the app opens. the trash is not in the backup.',
     tr_is_empty: 'the trash is empty.', tr_sel_all: 'select all', tr_sel_none: 'clear selection', tr_empty_btn: 'empty trash',
@@ -1061,6 +1061,31 @@ function badDatePart(d,m,y){
   const days = new Date(y, m, 0).getDate();
   if(!(d>=1 && d<=days)) return 'd';
   return null;
+}
+/* v15: datum projekta = startDate (menja korisnik) ili, ako ga nema, dan kada je projekat napravljen */
+function projDateISO(p){
+  if(!p) return null;
+  return validIsoOrNull(p.startDate) || (p.createdAt ? todayISOFromDate(new Date(p.createdAt)) : null);
+}
+function dateTrioHtml(pref, iso){
+  const pr = (iso||todayISO()).split('-');
+  return '<div class="date-trio" data-chain>'+
+    '<input class="dd" type="text" inputmode="numeric" id="'+pref+'D" value="'+parseInt(pr[2])+'" placeholder="DD">'+
+    '<input class="mm" type="text" inputmode="numeric" id="'+pref+'M" value="'+parseInt(pr[1])+'" placeholder="MM">'+
+    '<input class="yy" type="text" inputmode="numeric" id="'+pref+'Y" value="'+pr[0]+'" placeholder="GGGG"></div>';
+}
+/* pročita i proveri datum iz tri polja; ako ne postoji: crveno polje + upozorenje, vraća null */
+function readDateTrio(pref){
+  const fD=document.getElementById(pref+'D'), fM=document.getElementById(pref+'M'), fY=document.getElementById(pref+'Y');
+  const d=parseInt(fD.value), m=parseInt(fM.value), y=parseInt(fY.value);
+  [fD,fM,fY].forEach(f=>f.classList.remove('bad'));
+  const bad = badDatePart(d,m,y);
+  if(bad){
+    (bad==='d'?fD:(bad==='m'?fM:fY)).classList.add('bad');
+    showNote(t('date_invalid')+' '+(fD.value||'?')+'.'+(fM.value||'?')+'.'+(fY.value||'?'), {warn:true});
+    return null;
+  }
+  return isoFromParts(d,m,y);
 }
 function validIsoOrNull(iso){
   const mt = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
@@ -1399,7 +1424,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 14; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 15; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -2106,7 +2131,7 @@ function render(){
     '<div class="hd-title" onclick="openProjectSwitcher()">'+
     '<span class="hd-mark"></span>'+
     '<span class="hd-name">'+escapeHtml(proj.name)+'</span><span class="hd-chev">▾</span>'+
-    (proj.createdAt ? '<span class="hd-date">'+t('hd_since')+' '+dmyFromTimestamp(proj.createdAt)+'</span>' : '')+
+    (projDateISO(proj) ? '<span class="hd-date" onclick="event.stopPropagation(); openProjectData();">'+t('hd_since')+' '+dmyFromISO(projDateISO(proj))+'</span>' : '')+
     '</div>'+
     '<button class="icon-btn" onclick="openProjectSettings()" title="'+t('settings')+'">'+ic('⚙','gear')+'</button>'+
     '</div>'+
@@ -2393,8 +2418,8 @@ function renderProjectList(){
   list.innerHTML = filtered.map(p=>{
     const sel = selectedProjectIds.has(p.id);
     const checkbox = selectMode ? ('<span style="width:21px;height:21px;border-radius:6px;border:2px solid '+(sel?'var(--accent)':'var(--line)')+';background:'+(sel?'var(--accent)':'transparent')+';display:flex;align-items:center;justify-content:center;color:var(--on-accent);font-size:13px;font-weight:800;flex:none;">'+(sel?'✓':'')+'</span>') : '';
-    const createdStr = p.createdAt ? dmyFromTimestamp(p.createdAt) : '';
-    return '<div class="proj-item '+(p.id===currentProjectId && !selectMode?'active':'')+'" onclick="handleProjectRowClick(\''+p.id+'\')" ontouchstart="startLongPress(\''+p.id+'\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+checkbox+'<div style="display:flex; flex-direction:column; min-width:0;"><span class="pname">'+escapeHtml(p.name)+'</span>'+(createdStr?('<span style="font-size:10.5px; color:var(--text-dim); margin-top:2px;">'+t('created_on')+' '+createdStr+'</span>'):'')+'</div></div>';
+    const createdStr = projDateISO(p) ? dmyFromISO(projDateISO(p)) : '';
+    return '<div class="proj-item '+(p.id===currentProjectId && !selectMode?'active':'')+'" onclick="handleProjectRowClick(\''+p.id+'\')" ontouchstart="startLongPress(\''+p.id+'\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+checkbox+'<div style="display:flex; flex-direction:column; min-width:0;"><span class="pname">'+escapeHtml(p.name)+'</span>'+(createdStr?('<span style="font-size:10.5px; color:var(--text-dim); margin-top:2px;">'+t('hd_since')+' '+createdStr+'</span>'):'')+'</div></div>';
   }).join('');
 }
 function startLongPress(pid){
@@ -2486,7 +2511,8 @@ function openRenameSelectedProject(){
   const proj = projects.find(p=>p.id===pid); if(!proj) return;
   const backdrop=document.createElement('div'); backdrop.className='modal-backdrop small-modal'; backdrop.id='confirmBackdrop';
   backdrop.innerHTML = '<div class="modal"><button class="modal-close-x" onclick="closeConfirmModal()">✕</button><h2>'+t('rename_title')+'</h2>'+
-    '<div class="field"><label>'+t('project_name')+'</label><input type="text" id="renameProjInput" value="'+escapeHtml(proj.name)+'" maxlength="40" onkeydown="if(event.key===\'Enter\'){ event.preventDefault(); saveRenameSelectedProject(\''+pid+'\'); }"></div>'+
+    '<div data-chain><div class="field"><label>'+t('project_name')+'</label><input type="text" id="renameProjInput" value="'+escapeHtml(proj.name)+'" maxlength="40"></div>'+
+    '<div class="field"><label>'+t('proj_date')+'</label>'+dateTrioHtml('rp', projDateISO(proj))+'</div></div>'+
     '<div class="modal-actions"><button class="cancel-btn" onclick="closeConfirmModal()">'+t('cancel')+'</button>'+
     '<button class="create-btn" onclick="saveRenameSelectedProject(\''+pid+'\')">'+t('save')+'</button></div></div>';
   anchorUnderHeader(backdrop);
@@ -2499,13 +2525,14 @@ function saveRenameSelectedProject(pid){
   const inp = document.getElementById('renameProjInput'); if(!inp) return;
   const name = inp.value.trim();
   if(!name){ showNote(t('enter_project_name'), {warn:true}); inp.focus(); return; }
+  const iso = readDateTrio('rp'); if(!iso) return;
   const proj = projects.find(p=>p.id===pid); if(!proj) return;
-  proj.name = name;
+  proj.name = name; proj.startDate = iso;
   persistProjects();
   closeConfirmModal();
   selectMode = false; selectedProjectIds = new Set();
   renderProjectList(); renderProjectSelectionBar(); render();
-  showNote(t('note_renamed')+' '+name);
+  showNote(t('note_proj_edited')+' '+name);
 }
 function filterProjectList(v){ projectSearchQuery = v; renderProjectList(); }
 function openProjectSwitcher(){
@@ -2850,6 +2877,7 @@ function settingsTile(icon, title, sub, onclick, extraClass){
     '<span class="tile-text"><span class="tile-title">'+escapeHtml(title)+'</span>'+(sub?'<span class="tile-sub">'+escapeHtml(sub)+'</span>':'')+'</span>'+
     '<span class="tile-chev">›</span></button>';
 }
+function openProjectData(){ openProjectSettings(); openSettingsSub('basic'); }
 function openProjectSettings(){
   const backdrop=document.createElement('div'); backdrop.className='modal-backdrop settings-screen'; backdrop.id='modalBackdrop';
   backdrop.innerHTML = '<div class="modal" id="settingsModal"></div>';
@@ -2864,7 +2892,8 @@ function renderSettingsTiles(){
   const langObj = LANGS.find(l=>l.code===proj.language);
   m.innerHTML = settingsHeader(t('project_settings_title'), 'closeModal')+
     '<div class="set-body">'+
-    settingsTile('📝', t('section_basic'), proj.name+(langObj?' · '+langObj.label:''), "openSettingsSub('basic')")+
+    settingsTile('📝', t('section_basic'), proj.name+(projDateISO(proj)?' · '+t('hd_since')+' '+dmyFromISO(projDateISO(proj)):''), "openSettingsSub('basic')")+
+    settingsTile('🌐', t('app_language'), langObj?langObj.label:'', "openSettingsSub('lang')")+
     settingsTile('📊', t('tile_excel'), t('tile_excel_sub'), "openSettingsSub('excel')")+
     settingsTile('🎨', t('tile_theme'), themeName(getTheme()), "openSettingsSub('theme')")+
     settingsTile('💾', t('tile_backup'), t('last_backup_label')+': '+lastBackupDisplay(), "openSettingsSub('backup')")+
@@ -2877,7 +2906,7 @@ function renderSettingsTiles(){
   m.scrollTop = 0;
 }
 /* v12: korisničko uputstvo (Podešavanja → uputstvo), kao u Arhivi: naslovi koji se otvaraju dodirom */
-const GUIDE = { 'sr-RS': [["Unos troška", "Dodirni polje dole i upiši trošak, ili ga izgovori preko mikrofona na tastaturi, npr. „kafa 300 dinara“ ili „gorivo 6200 i parking 900“. Dok pišeš, polje se raširi do zaglavlja; dodir van polja ili korak nazad ga zatvara.", "Strelica ili taster Enter šalje tekst. AI izdvaja opis, iznos, valutu i kategoriju; više troškova u jednoj rečenici postaju posebne stavke. Datum je današnji, osim kad ga kažeš (npr. „juče“ ili „10. oktobra“).", "Trošak se čuva odmah, a gore piše šta je sačuvano. Tastatura ostaje otvorena za sledeći unos. Ako isti trošak već postoji u projektu, aplikacija prvo pita da li da ga doda ponovo."], ["Slika računa", "Kvadrat „Račun“ u zaglavlju nudi kameru, galeriju ili fajl (slika ili PDF). Izabrana slika se vidi iznad polja za unos; možeš dopisati napomenu i dodirnuti strelicu.", "AI čita stavke i datum sa računa. Kad pojedinačne stavke nisu čitljive, uzima ukupan iznos kao jednu stavku."], ["Ispravka i brisanje", "Dodir na stavku otvara „izmeni stavku“ preko celog ekrana: datum, opis, iznos, valuta, kategorija i napomena. Datum koji ne postoji (npr. 32.10.) se ne čuva: polje pocrveni i gore piše upozorenje. Strelice ↶ ↷ gore vraćaju kucanje reč po reč. „sačuvaj“ čuva izmenu, „otkaži“ ili korak nazad izlazi bez izmene.", "Crvena kanta briše stavku: prvo pita, pa stavka ide u korpu, odakle može da se vrati."], ["Zaglavlje", "Gore je naziv projekta (dodir otvara sve projekte), datum kada je projekat napravljen („od 13.09.2026“) i ⚙ za Podešavanja.", "Ispod su kvadrati: Projekat (nov projekat), Pretraži, Valuta, Sortiraj i Račun. Kartica „ukupno“ pokazuje zbir projekta i broj stavki."], ["Projekti", "Dodir na naziv projekta otvara sve projekte preko celog ekrana; gore je pretraga po nazivu, a dodir na projekat ga otvara. Nov projekat praviš kvadratom „Projekat“.", "Dug pritisak na projekat ga označava i otvara traku izbora sa tri dugmeta: „preimenuj“ (kad je izabran tačno jedan), „izvezi“ (JSON fajl izabranih) i „obriši“ (ide u korpu). ✕ prekida izbor."], ["Valute i kurs", "Svaki projekat ima obračunsku valutu: sve stavke i zbirovi su krupno u njoj, a originalni iznos sitno ispod, kad je u drugoj valuti.", "Prozor „Valuta“ menja obračunsku valutu i za svaku stranu valutu iz stavki ima jedan kurs, za ceo projekat. Kurs se upisuje kao u menjačnici: „1 jača valuta = koliko slabije“.", "Stavka bez kursa ima crveno „nema kurs“, a ispod zbira piše „+ N stavki bez kursa ›“; dodir vodi pravo na upis kursa."], ["Pretraga i sortiranje", "Kvadrat „Pretraži“ otvara polje za reč (npr. „kafa“). Dok pretraga traje, kartica „ukupno“ pokazuje zbir samo pronađenih stavki. ✕ ili brisanje reči vraća ukupno projekta.", "Kvadrat „Sortiraj“ ređa stavke po datumu, po kategoriji ili po nazivu."], ["AI čet", "Dugme sa oblačićem dole levo otvara razgovor sa AI. Pitaj bilo šta o troškovima svih projekata, npr. „koliko sam potrošio na hranu?“.", "AI može da predloži izmenu (dodaj, izmeni ili obriši stavku), ali je ne radi sam: predlog primenjuješ tek kad ga potvrdiš. Obrisano iz četa takođe ide u korpu."], ["Obaveštenja", "Posle svake radnje gore se pojavi obaveštenje. Kvačica znači da je urađeno, a crveni znak „!“ da nešto treba proveriti (npr. nema interneta ili ključa).", "Obaveštenje posle par sekundi samo nestane; dodir ga ne zatvara, pa za to vreme možeš normalno da radiš. Dok stoji, ekran je spušten, ne zaklonjen."], ["Korpa", "Obrisani troškovi i projekti idu u korpu (Podešavanja → korpa) i tamo čekaju zadati broj dana (podrazumevano 30), a zatim se trajno brišu pri otvaranju aplikacije.", "Dodir na stavku u korpi je označava; dole se pojave „Vrati“ i „Obriši trajno“. Projekat se vraća sa svim stavkama i kursevima. Trošak se vraća u svoj projekat, a ako taj projekat više ne postoji, u otvoren projekat.", "„isprazni korpu“ trajno briše sve. Trajno brisanje uvek još jednom pita."], ["Rezervna kopija", "Sve aplikacije na adresi zoki02122.github.io dele isto mesto za podatke: kad se u Chrome-u obrišu podaci sajta, nestaju podaci svih njih. Zato redovno čuvaj rezervnu kopiju.", "Podešavanja → rezervna kopija: „izvezi“ preuzima jedan JSON fajl sa svim projektima (sačuvaj ga npr. na Google Drive), a „uvezi“ ga vraća. Kad prođe zadati broj dana bez kopije (podrazumevano 7), na vrhu se pojavi crvena traka-podsetnik.", "Korpa i Gemini ključ ne idu u rezervnu kopiju."], ["Excel", "Podešavanja → Excel: izvoz otvorenog projekta u Excel tabelu, ili uvoz tabele u ovaj ili u nov projekat."], ["Ostala podešavanja", "Naziv i jezik projekta: naziv i jezik (automatski po telefonu, srpski ili engleski); na tom jeziku su aplikacija i opisi troškova koje piše AI. Tema: pet izgleda, promena se vidi odmah.", "Gemini API ključ: pravi se besplatno na aistudio.google.com (Get API key) i čuva samo na ovom telefonu. Bez ključa unos glasom, tekstom i slikom ne radi.", "Na dnu Podešavanja piše broj verzije aplikacije."]], 'en-US': [["Adding an expense", "Tap the field at the bottom and type an expense, or dictate it with the keyboard microphone, e.g. “coffee 3 euros” or “fuel 60 and parking 9”. While you type, the field grows up to the header; tapping outside it or going back closes it.", "The arrow or the Enter key sends the text. AI picks out the description, amount, currency and category; several expenses in one sentence become separate items. The date is today, unless you say one (e.g. “yesterday” or “October 10”).", "The expense is saved right away and a notice at the top says what was saved. The keyboard stays open for the next entry. If the same expense already exists in the project, the app first asks whether to add it again."], ["Receipt photo", "The “Receipt” square in the header offers the camera, the gallery or a file (image or PDF). The chosen image is shown above the input field; you can add a note and tap the arrow.", "AI reads the items and the date from the receipt. When single items are not readable, it takes the total as one item."], ["Editing and deleting", "Tapping an item opens “edit item” on the full screen: date, description, amount, currency, category and note. A date that does not exist (e.g. Oct 32) is not saved: the field turns red and a warning appears at the top. The ↶ ↷ arrows at the top undo typing word by word. “save” saves the change, “cancel” or going back leaves without changes.", "The red bin deletes the item: it asks first, then the item goes to the trash, where it can be restored."], ["Header", "At the top are the project name (tap to open all projects), the date the project was made (“since 13.09.2026”) and ⚙ for Settings.", "Below are the squares: Project (new project), Search, Currency, Sort and Receipt. The “total” card shows the project total and the number of items."], ["Projects", "Tapping the project name opens all projects on the full screen; search by name is at the top, and tapping a project opens it. Make a new project with the “Project” square.", "Long-press a project to select it and open the selection bar: “rename” (when exactly one is selected), “export” (a JSON file of the selected) and “delete” (goes to the trash). ✕ ends the selection."], ["Currencies and rates", "Every project has an accounting currency: all items and totals are shown large in it, with the original amount small below when it is in another currency.", "The “Currency” window changes the accounting currency and has one rate for each foreign currency in the items, for the whole project. Enter the rate as at an exchange office: “1 stronger currency = how much of the weaker”.", "An item without a rate shows a red “no rate”, and below the total it says “+ N items without rate ›”; tapping it goes straight to entering the rate."], ["Search and sorting", "The “Search” square opens a field for a word (e.g. “coffee”). While searching, the “total” card shows the sum of the found items only. ✕ or clearing the word brings back the project total.", "The “Sort” square orders items by date, by category or by name."], ["AI chat", "The speech-bubble button at the bottom left opens a chat with AI. Ask anything about the expenses of all projects, e.g. “how much did I spend on food?”.", "AI can suggest a change (add, edit or delete an item), but never makes it on its own: a suggestion is applied only when you confirm it. Items deleted from the chat also go to the trash."], ["Notices", "After every action a notice appears at the top. A check mark means it is done, a red “!” that something needs checking (e.g. no internet or no key).", "The notice disappears on its own after a few seconds; tapping does not close it, so you can keep working. While it is shown, the screen moves down instead of being covered."], ["Trash", "Deleted expenses and projects go to the trash (Settings → trash) and wait there for the set number of days (30 by default), after which they are deleted for good when the app opens.", "Tapping an item in the trash selects it; “Restore” and “Delete forever” appear at the bottom. A project is restored with all its items and rates. An expense goes back to its project, or to the open project if its project no longer exists.", "“empty trash” deletes everything for good. Deleting for good always asks once more."], ["Backup", "All apps at zoki02122.github.io share the same data storage: clearing site data in Chrome removes the data of all of them. That is why you should save a backup regularly.", "Settings → backup: “export” downloads one JSON file with all projects (keep it e.g. on Google Drive), and “import” restores it. When the set number of days passes without a backup (7 by default), a red reminder bar appears at the top.", "The trash and the Gemini key are not in the backup."], ["Excel", "Settings → Excel: export the open project to an Excel sheet, or import a sheet into this project or a new one."], ["Other settings", "Project name and language: name and language (automatic by phone, Serbian or English); the app and the expense descriptions written by AI are in that language. Theme: five looks, the change shows right away.", "Gemini API key: made for free at aistudio.google.com (Get API key) and stored only on this phone. Without a key, voice, text and photo entry do not work.", "The app version number is at the bottom of Settings."]] };
+const GUIDE = { 'sr-RS': [["Unos troška", "Dodirni polje dole i upiši trošak, ili ga izgovori preko mikrofona na tastaturi, npr. „kafa 300 dinara“ ili „gorivo 6200 i parking 900“. Dok pišeš, polje se raširi do zaglavlja; dodir van polja ili korak nazad ga zatvara.", "Strelica ili taster Enter šalje tekst. AI izdvaja opis, iznos, valutu i kategoriju; više troškova u jednoj rečenici postaju posebne stavke. Datum je današnji, osim kad ga kažeš (npr. „juče“ ili „10. oktobra“).", "Trošak se čuva odmah, a gore piše šta je sačuvano. Tastatura ostaje otvorena za sledeći unos. Ako isti trošak već postoji u projektu, aplikacija prvo pita da li da ga doda ponovo."], ["Slika računa", "Kvadrat „Račun“ u zaglavlju nudi kameru, galeriju ili fajl (slika ili PDF). Izabrana slika se vidi iznad polja za unos; možeš dopisati napomenu i dodirnuti strelicu.", "AI čita stavke i datum sa računa. Kad pojedinačne stavke nisu čitljive, uzima ukupan iznos kao jednu stavku."], ["Ispravka i brisanje", "Dodir na stavku otvara „izmeni stavku“ preko celog ekrana: datum, opis, iznos, valuta, kategorija i napomena. Datum koji ne postoji (npr. 32.10.) se ne čuva: polje pocrveni i gore piše upozorenje. Strelice ↶ ↷ gore vraćaju kucanje reč po reč. „sačuvaj“ čuva izmenu, „otkaži“ ili korak nazad izlazi bez izmene.", "Crvena kanta briše stavku: prvo pita, pa stavka ide u korpu, odakle može da se vrati."], ["Zaglavlje", "Gore je naziv projekta (dodir otvara sve projekte), datum projekta („od 13.09.2026“; dodir otvara „podaci o projektu“, gde se menja) i ⚙ za Podešavanja.", "Ispod su kvadrati: Projekat (nov projekat), Pretraži, Valuta, Sortiraj i Račun. Kartica „ukupno“ pokazuje zbir projekta i broj stavki."], ["Projekti", "Dodir na naziv projekta otvara sve projekte preko celog ekrana; gore je pretraga po nazivu, a dodir na projekat ga otvara. Nov projekat praviš kvadratom „Projekat“.", "Dug pritisak na projekat ga označava i otvara traku izbora sa tri dugmeta: „izmeni“ (naziv i datum projekta, kad je izabran tačno jedan), „izvezi“ (JSON fajl izabranih) i „obriši“ (ide u korpu). ✕ prekida izbor."], ["Valute i kurs", "Svaki projekat ima obračunsku valutu: sve stavke i zbirovi su krupno u njoj, a originalni iznos sitno ispod, kad je u drugoj valuti.", "Prozor „Valuta“ menja obračunsku valutu i za svaku stranu valutu iz stavki ima jedan kurs, za ceo projekat. Kurs se upisuje kao u menjačnici: „1 jača valuta = koliko slabije“.", "Stavka bez kursa ima crveno „nema kurs“, a ispod zbira piše „+ N stavki bez kursa ›“; dodir vodi pravo na upis kursa."], ["Pretraga i sortiranje", "Kvadrat „Pretraži“ otvara polje za reč (npr. „kafa“). Dok pretraga traje, kartica „ukupno“ pokazuje zbir samo pronađenih stavki. ✕ ili brisanje reči vraća ukupno projekta.", "Kvadrat „Sortiraj“ ređa stavke po datumu, po kategoriji ili po nazivu."], ["AI čet", "Dugme sa oblačićem dole levo otvara razgovor sa AI. Pitaj bilo šta o troškovima svih projekata, npr. „koliko sam potrošio na hranu?“.", "AI može da predloži izmenu (dodaj, izmeni ili obriši stavku), ali je ne radi sam: predlog primenjuješ tek kad ga potvrdiš. Obrisano iz četa takođe ide u korpu."], ["Obaveštenja", "Posle svake radnje gore se pojavi obaveštenje. Kvačica znači da je urađeno, a crveni znak „!“ da nešto treba proveriti (npr. nema interneta ili ključa).", "Obaveštenje posle par sekundi samo nestane; dodir ga ne zatvara, pa za to vreme možeš normalno da radiš. Dok stoji, ekran je spušten, ne zaklonjen."], ["Korpa", "Obrisani troškovi i projekti idu u korpu (Podešavanja → korpa) i tamo čekaju zadati broj dana (podrazumevano 30), a zatim se trajno brišu pri otvaranju aplikacije.", "Dodir na stavku u korpi je označava; dole se pojave „Vrati“ i „Obriši trajno“. Projekat se vraća sa svim stavkama i kursevima. Trošak se vraća u svoj projekat, a ako taj projekat više ne postoji, u otvoren projekat.", "„isprazni korpu“ trajno briše sve. Trajno brisanje uvek još jednom pita."], ["Rezervna kopija", "Sve aplikacije na adresi zoki02122.github.io dele isto mesto za podatke: kad se u Chrome-u obrišu podaci sajta, nestaju podaci svih njih. Zato redovno čuvaj rezervnu kopiju.", "Podešavanja → rezervna kopija: „izvezi“ preuzima jedan JSON fajl sa svim projektima (sačuvaj ga npr. na Google Drive), a „uvezi“ ga vraća. Kad prođe zadati broj dana bez kopije (podrazumevano 7), na vrhu se pojavi crvena traka-podsetnik.", "Korpa i Gemini ključ ne idu u rezervnu kopiju."], ["Excel", "Podešavanja → Excel: izvoz otvorenog projekta u Excel tabelu, ili uvoz tabele u ovaj ili u nov projekat."], ["Ostala podešavanja", "Podaci o projektu: naziv i datum projekta (datum koji ne postoji se ne čuva). Jezik aplikacije: automatski po telefonu, srpski ili engleski; važi za otvoren projekat, a na tom jeziku su i opisi troškova koje piše AI. Tema: pet izgleda, promena se vidi odmah.", "Gemini API ključ: pravi se besplatno na aistudio.google.com (Get API key) i čuva samo na ovom telefonu. Bez ključa unos glasom, tekstom i slikom ne radi.", "Na dnu Podešavanja piše broj verzije aplikacije."]], 'en-US': [["Adding an expense", "Tap the field at the bottom and type an expense, or dictate it with the keyboard microphone, e.g. “coffee 3 euros” or “fuel 60 and parking 9”. While you type, the field grows up to the header; tapping outside it or going back closes it.", "The arrow or the Enter key sends the text. AI picks out the description, amount, currency and category; several expenses in one sentence become separate items. The date is today, unless you say one (e.g. “yesterday” or “October 10”).", "The expense is saved right away and a notice at the top says what was saved. The keyboard stays open for the next entry. If the same expense already exists in the project, the app first asks whether to add it again."], ["Receipt photo", "The “Receipt” square in the header offers the camera, the gallery or a file (image or PDF). The chosen image is shown above the input field; you can add a note and tap the arrow.", "AI reads the items and the date from the receipt. When single items are not readable, it takes the total as one item."], ["Editing and deleting", "Tapping an item opens “edit item” on the full screen: date, description, amount, currency, category and note. A date that does not exist (e.g. Oct 32) is not saved: the field turns red and a warning appears at the top. The ↶ ↷ arrows at the top undo typing word by word. “save” saves the change, “cancel” or going back leaves without changes.", "The red bin deletes the item: it asks first, then the item goes to the trash, where it can be restored."], ["Header", "At the top are the project name (tap to open all projects), the project date (“since 13.09.2026”; tap to open “project details”, where it is changed) and ⚙ for Settings.", "Below are the squares: Project (new project), Search, Currency, Sort and Receipt. The “total” card shows the project total and the number of items."], ["Projects", "Tapping the project name opens all projects on the full screen; search by name is at the top, and tapping a project opens it. Make a new project with the “Project” square.", "Long-press a project to select it and open the selection bar: “edit” (project name and date, when exactly one is selected), “export” (a JSON file of the selected) and “delete” (goes to the trash). ✕ ends the selection."], ["Currencies and rates", "Every project has an accounting currency: all items and totals are shown large in it, with the original amount small below when it is in another currency.", "The “Currency” window changes the accounting currency and has one rate for each foreign currency in the items, for the whole project. Enter the rate as at an exchange office: “1 stronger currency = how much of the weaker”.", "An item without a rate shows a red “no rate”, and below the total it says “+ N items without rate ›”; tapping it goes straight to entering the rate."], ["Search and sorting", "The “Search” square opens a field for a word (e.g. “coffee”). While searching, the “total” card shows the sum of the found items only. ✕ or clearing the word brings back the project total.", "The “Sort” square orders items by date, by category or by name."], ["AI chat", "The speech-bubble button at the bottom left opens a chat with AI. Ask anything about the expenses of all projects, e.g. “how much did I spend on food?”.", "AI can suggest a change (add, edit or delete an item), but never makes it on its own: a suggestion is applied only when you confirm it. Items deleted from the chat also go to the trash."], ["Notices", "After every action a notice appears at the top. A check mark means it is done, a red “!” that something needs checking (e.g. no internet or no key).", "The notice disappears on its own after a few seconds; tapping does not close it, so you can keep working. While it is shown, the screen moves down instead of being covered."], ["Trash", "Deleted expenses and projects go to the trash (Settings → trash) and wait there for the set number of days (30 by default), after which they are deleted for good when the app opens.", "Tapping an item in the trash selects it; “Restore” and “Delete forever” appear at the bottom. A project is restored with all its items and rates. An expense goes back to its project, or to the open project if its project no longer exists.", "“empty trash” deletes everything for good. Deleting for good always asks once more."], ["Backup", "All apps at zoki02122.github.io share the same data storage: clearing site data in Chrome removes the data of all of them. That is why you should save a backup regularly.", "Settings → backup: “export” downloads one JSON file with all projects (keep it e.g. on Google Drive), and “import” restores it. When the set number of days passes without a backup (7 by default), a red reminder bar appears at the top.", "The trash and the Gemini key are not in the backup."], ["Excel", "Settings → Excel: export the open project to an Excel sheet, or import a sheet into this project or a new one."], ["Other settings", "Project details: project name and date (a date that does not exist is not saved). App language: automatic by phone, Serbian or English; it applies to the open project, and AI writes the expense descriptions in it. Theme: five looks, the change shows right away.", "Gemini API key: made for free at aistudio.google.com (Get API key) and stored only on this phone. Without a key, voice, text and photo entry do not work.", "The app version number is at the bottom of Settings."]] };
 function guideHtml(){
   const secs = GUIDE[resolveAppLanguage()] || GUIDE['sr-RS'];
   return '<div class="settings-hint guide-intro">'+t('guide_intro')+'</div>'+
@@ -2894,9 +2923,17 @@ function openSettingsSub(which){
     body =
       '<div class="settings-card">'+
       '<div class="settings-field"><label>'+t('project_name')+'</label><input type="text" id="renameInput" value="'+escapeHtml(proj.name)+'" maxlength="40" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>'+
-      '<div class="settings-field"><label>'+t('app_language')+'</label><select id="langSelect">'+LANGS.map(l=>'<option value="'+l.code+'" '+(l.code===proj.language?'selected':'')+'>'+l.label+'</option>').join('')+'</select></div>'+
+      '<div class="settings-field"><label>'+t('proj_date')+'</label>'+dateTrioHtml('pd', projDateISO(proj))+'</div>'+
       '</div>'+
       '<div class="modal-actions" style="margin-top:16px;"><button class="cancel-btn" onclick="settingsBack()">'+t('cancel')+'</button><button class="create-btn" onclick="saveProjectSettings()">'+t('save')+'</button></div>';
+  } else if(which==='lang'){
+    title = t('app_language');
+    body =
+      '<div class="settings-card">'+
+      '<div class="settings-field"><label>'+t('app_language')+'</label><select id="langSelect">'+LANGS.map(l=>'<option value="'+l.code+'" '+(l.code===proj.language?'selected':'')+'>'+l.label+'</option>').join('')+'</select></div>'+
+      '</div>'+
+      '<div class="settings-hint">'+t('lang_hint')+'</div>'+
+      '<div class="modal-actions" style="margin-top:16px;"><button class="cancel-btn" onclick="settingsBack()">'+t('cancel')+'</button><button class="create-btn" onclick="saveProjectLanguage()">'+t('save')+'</button></div>';
   } else if(which==='excel'){
     title = t('tile_excel');
     body =
@@ -2984,9 +3021,18 @@ function confirmClearApiKey(){
 }
 function saveProjectSettings(){
   const name=document.getElementById('renameInput').value.trim();
+  if(!name){ showNote(t('enter_project_name'), {warn:true}); return; }
+  const iso = readDateTrio('pd'); if(!iso) return;
+  const proj = currentProject();
+  if(proj){ proj.name=name; proj.startDate=iso; persistProjects(); }
+  render();
+  settingsBack();
+  showNote(t('note_proj_edited')+' '+name);
+}
+function saveProjectLanguage(){
   const lang=document.getElementById('langSelect').value;
   const proj = currentProject();
-  if(proj){ proj.name=name||proj.name; proj.language=lang; persistProjects(); }
+  if(proj){ proj.language=lang; persistProjects(); }
   render();
   settingsBack();
 }
@@ -3092,23 +3138,14 @@ function openEditEntry(id){
   edInit();
 }
 function saveEntryFromModal(id){
-  const fD=document.getElementById('eD'), fM=document.getElementById('eM'), fY=document.getElementById('eY');
-  const d=parseInt(fD.value), m=parseInt(fM.value), y=parseInt(fY.value);
-  [fD,fM,fY].forEach(f=>f.classList.remove('bad'));
-  const bad = badDatePart(d,m,y);
-  if(bad){
-    const f = bad==='d'?fD:(bad==='m'?fM:fY);
-    f.classList.add('bad');
-    showNote(t('date_invalid')+' '+(fD.value||'?')+'.'+(fM.value||'?')+'.'+(fY.value||'?'), {warn:true});
-    return;
-  }
+  const iso = readDateTrio('e'); if(!iso) return;
   const opis=document.getElementById('editOpis').value.trim();
   const iznos=parseNum(document.getElementById('editIznos').value)||0;
   const valuta=document.getElementById('editValuta').value.trim().toUpperCase();
   const kategorija=document.getElementById('editKategorija').value.trim()||'ostalo';
   const napomena=document.getElementById('editNapomena').value.trim();
   closeModal();
-  updateEntry(id, {datum: isoFromParts(d,m,y), opis, iznos, valuta, kategorija, napomena});
+  updateEntry(id, {datum: iso, opis, iznos, valuta, kategorija, napomena});
   showNote(t('note_edited')+' '+opis, { ms:5000 });
 }
 function deleteEntryFromModal(id){
