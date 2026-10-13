@@ -8,7 +8,24 @@
 <meta name="theme-color" content="#163B69" id="metaThemeColor">
 <script>
 /* tema se postavlja pre prvog iscrtavanja, da ne bi "bljesnula" klasična */
-(function(){ try{ var t = localStorage.getItem('app:theme'); if(t) document.documentElement.setAttribute('data-theme', t); }catch(e){} })();
+/* v13: ključevi sa prefiksom aplikacije (deljeni domen zoki02122.github.io). Prenos starih vrednosti radi se OVDE, pre svega ostalog:
+   ključ po ključ — upiši novi, proveri da je isti, tek onda obriši stari. Ako se prekine (npr. pun prostor), nastavlja pri sledećem
+   otvaranju. Stari ključ se briše samo kad je novi isti; ako postoje oba a razlikuju se, stari ostaje netaknut.
+   'app:apiKey' NAMERNO ostaje isti: Arhiva ga čita dugmetom „Koristi ključ iz Troškova“. */
+(function(){ try{
+  var LS = localStorage;
+  var names = ['projects','lastProjectId','lastRates','theme','backupIntervalDays','lastBackup','aiFormatStatus'];
+  var pairs = names.map(function(n){ return ['app:'+n, 'troskovi:'+n]; });
+  var src = LS.getItem('troskovi:projects'); if(src===null) src = LS.getItem('app:projects');
+  var ids = []; try{ ids = (JSON.parse(src||'[]')||[]).map(function(p){ return p.id; }); }catch(e){}
+  ids.forEach(function(id){ pairs.push(['entries:'+id, 'troskovi:entries:'+id]); pairs.push(['rates:'+id, 'troskovi:rates:'+id]); });
+  pairs.forEach(function(pr){
+    var v = LS.getItem(pr[0]); if(v===null) return;
+    if(LS.getItem(pr[1])===null) LS.setItem(pr[1], v);
+    if(LS.getItem(pr[1])===v) LS.removeItem(pr[0]);
+  });
+}catch(e){} })();
+(function(){ try{ var t = localStorage.getItem('troskovi:theme') || localStorage.getItem('app:theme'); if(t) document.documentElement.setAttribute('data-theme', t); }catch(e){} })();
 </script>
 <!-- fontovi su ugrađeni u stil ispod (rade bez interneta i ne zavise od Google-a) -->
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1047,21 +1064,37 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<
 
 
 /* ---------- PERSISTENCE (localStorage - radi trajno u Chrome-u) ---------- */
-function lsGet(key){ try{ const v = localStorage.getItem(key); return v===null ? null : {value:v}; }catch(e){ return null; } }
-function lsSet(key,val){ try{ localStorage.setItem(key, val); return {value:val}; }catch(e){ return null; } }
+/* v13: dok prenos na nove ključeve nije završen (prekid, pun prostor), čitanje uzima stari ključ ako novog nema,
+   a prvi uspešan upis pod novi ključ briše stari — tako se nijedna stara stavka ne sakrije iza novog unosa. */
+function lsOldKey(key){
+  if(key.indexOf('troskovi:entries:')===0) return 'entries:'+key.slice(17);
+  if(key.indexOf('troskovi:rates:')===0) return 'rates:'+key.slice(15);
+  if(key.indexOf('troskovi:')===0) return 'app:'+key.slice(9);
+  return null;
+}
+function lsGet(key){ try{
+  let v = localStorage.getItem(key);
+  if(v===null){ const o = lsOldKey(key); if(o && o!=='app:apiKey') v = localStorage.getItem(o); }
+  return v===null ? null : {value:v};
+}catch(e){ return null; } }
+function lsSet(key,val){ try{
+  localStorage.setItem(key, val);
+  const o = lsOldKey(key); if(o && o!=='app:apiKey' && localStorage.getItem(o)!==null) localStorage.removeItem(o);
+  return {value:val};
+}catch(e){ return null; } }
 
 /* ---------- BACKUP REMINDER ---------- */
 function getBackupIntervalDays(){
-  const v = lsGet('app:backupIntervalDays');
+  const v = lsGet('troskovi:backupIntervalDays');
   const n = v ? parseInt(v.value) : NaN;
   return (n && n > 0) ? n : 7;
 }
-function setBackupIntervalDays(days){ lsSet('app:backupIntervalDays', String(days)); }
+function setBackupIntervalDays(days){ lsSet('troskovi:backupIntervalDays', String(days)); }
 function getLastBackupDate(){
-  const v = lsGet('app:lastBackup');
+  const v = lsGet('troskovi:lastBackup');
   return v ? new Date(v.value) : null;
 }
-function markBackupDone(){ lsSet('app:lastBackup', new Date().toISOString()); }
+function markBackupDone(){ lsSet('troskovi:lastBackup', new Date().toISOString()); }
 
 /* ---------- TEME (izgled cele aplikacije, ne zavisi od projekta) ---------- */
 const THEMES = [
@@ -1072,7 +1105,7 @@ const THEMES = [
   {id:'klasicna', sr:'Klasična',            en:'Classic',          bar:'#163B69', bg:'#FFFFFF', card:'#163B69', num:'#F5C15C'}
 ];
 function getTheme(){
-  const v = lsGet('app:theme');
+  const v = lsGet('troskovi:theme');
   return (v && THEMES.some(x=>x.id===v.value)) ? v.value : 'klasicna';
 }
 function themeName(id){
@@ -1087,7 +1120,7 @@ function applyTheme(id){
 }
 function setTheme(id){
   if(!THEMES.some(x=>x.id===id)) return;
-  lsSet('app:theme', id);
+  lsSet('troskovi:theme', id);
   applyTheme(id);
 }
 function pickTheme(id){
@@ -1302,12 +1335,12 @@ function saveBackupInterval(val){
   setBackupIntervalDays(n);
   render();
 }
-function lsDelete(key){ try{ localStorage.removeItem(key); }catch(e){} }
+function lsDelete(key){ try{ localStorage.removeItem(key); const o = lsOldKey(key); if(o && o!=='app:apiKey') localStorage.removeItem(o); }catch(e){} }
 
 async function loadAll(){
-  const p = lsGet('app:projects');
+  const p = lsGet('troskovi:projects');
   if(p && p.value){ try{ projects = JSON.parse(p.value); }catch(e){ projects=[]; } }
-  const l = lsGet('app:lastProjectId');
+  const l = lsGet('troskovi:lastProjectId');
   if(l && l.value) currentProjectId = l.value;
 
   if(projects.length === 0){
@@ -1328,29 +1361,29 @@ async function loadAll(){
   loadProjectData(currentProjectId);
   render();
 }
-function persistProjects(){ lsSet('app:projects', JSON.stringify(projects)); }
-function persistLastProject(){ lsSet('app:lastProjectId', currentProjectId); }
+function persistProjects(){ lsSet('troskovi:projects', JSON.stringify(projects)); }
+function persistLastProject(){ lsSet('troskovi:lastProjectId', currentProjectId); }
 function loadProjectData(pid){
-  const e = lsGet('entries:'+pid);
+  const e = lsGet('troskovi:entries:'+pid);
   entries = (e && e.value) ? JSON.parse(e.value) : [];
   /* v7: isti naziv valute uvek isti kod (din → RSD, € → EUR …) */
   let curFixed = false;
   entries.forEach(it=>{ const c = normCur(it.valuta); if(c && c!==it.valuta){ it.valuta = c; curFixed = true; } });
-  if(curFixed) lsSet('entries:'+pid, JSON.stringify(entries));
-  const r = lsGet('rates:'+pid);
+  if(curFixed) lsSet('troskovi:entries:'+pid, JSON.stringify(entries));
+  const r = lsGet('troskovi:rates:'+pid);
   rates = (r && r.value) ? JSON.parse(r.value) : {};
 }
-function persistEntries(){ lsSet('entries:'+currentProjectId, JSON.stringify(entries)); }
-function persistRates(){ lsSet('rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 12; /* svaka objava: +1, i isti broj u linku ?v=N */
+function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
+function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
+const APP_VERSION = 13; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
 function saveAiFormatStatus(mode, rejections){
-  lsSet('app:aiFormatStatus', JSON.stringify({ mode: mode, reasons: rejections || [], at: new Date().toISOString() }));
+  lsSet('troskovi:aiFormatStatus', JSON.stringify({ mode: mode, reasons: rejections || [], at: new Date().toISOString() }));
 }
 function aiFormatStatusHtml(){
-  const r = lsGet('app:aiFormatStatus');
+  const r = lsGet('troskovi:aiFormatStatus');
   if(!r) return '';
   let st; try{ st = JSON.parse(r.value); }catch(e){ return ''; }
   if(!st || !st.mode) return '';
@@ -1445,13 +1478,13 @@ function fmtRate(v){
   return p[0] + (p[1] ? ','+p[1] : '');
 }
 function getLastGlobalRates(){
-  const r = lsGet('app:lastRates');
+  const r = lsGet('troskovi:lastRates');
   return (r && r.value) ? JSON.parse(r.value) : {};
 }
 function saveLastGlobalRate(key, val){
   const all = getLastGlobalRates();
   all[key] = val;
-  lsSet('app:lastRates', JSON.stringify(all));
+  lsSet('troskovi:lastRates', JSON.stringify(all));
 }
 function setRate(foreign, base, val){
   const v = parseNum(val);
@@ -1548,7 +1581,7 @@ function trashAddEntry(entry, projectId){
 }
 function trashAddProject(pid){
   const proj = projects.find(p=>p.id===pid); if(!proj) return;
-  const e = lsGet('entries:'+pid), r = lsGet('rates:'+pid);
+  const e = lsGet('troskovi:entries:'+pid), r = lsGet('troskovi:rates:'+pid);
   let ents = [], rts = {};
   try{ ents = (e && e.value) ? JSON.parse(e.value) : []; }catch(x){}
   try{ rts = (r && r.value) ? JSON.parse(r.value) : {}; }catch(x){}
@@ -1609,8 +1642,8 @@ function trashRestoreSelected(){
     if(projects.some(p=>p.id===proj.id)) proj = Object.assign({}, proj, { id: uid('p') });
     proj.activeDate = todayISO();
     projects.push(proj);
-    lsSet('entries:'+proj.id, JSON.stringify(x.entries||[]));
-    lsSet('rates:'+proj.id, JSON.stringify(x.rates||{}));
+    lsSet('troskovi:entries:'+proj.id, JSON.stringify(x.entries||[]));
+    lsSet('troskovi:rates:'+proj.id, JSON.stringify(x.rates||{}));
     lastMsg = t('tr_restored_proj')+' '+proj.name;
   });
   persistProjects();
@@ -1647,8 +1680,8 @@ function deleteProject(pid){
   const proj = projects.find(p=>p.id===pid);
   trashAddProject(pid);
   projects = projects.filter(p=>p.id!==pid);
-  lsDelete('entries:'+pid);
-  lsDelete('rates:'+pid);
+  lsDelete('troskovi:entries:'+pid);
+  lsDelete('troskovi:rates:'+pid);
   persistProjects();
   if(projects.length===0){ createProject(null,'auto'); }
   else if(currentProjectId===pid){ switchProject(projects[0].id); }
@@ -2085,13 +2118,13 @@ function render(){
 }
 function buildAllProjectsSummary(){
   return projects.map(p=>{
-    const e = lsGet('entries:'+p.id);
+    const e = lsGet('troskovi:entries:'+p.id);
     const list = (e && e.value) ? JSON.parse(e.value) : [];
     const items = list.map(it=>({
       id: it.id, opis: it.opis, iznos: it.iznos, valuta: it.valuta,
       kategorija: it.kategorija||'', datum: it.datum, napomena: it.napomena||''
     }));
-    const r = lsGet('rates:'+p.id);
+    const r = lsGet('troskovi:rates:'+p.id);
     const projRates = (r && r.value) ? JSON.parse(r.value) : {};
     const rateList = Object.keys(projRates).map(key=>{
       const [a,b] = key.split('_');
@@ -2194,7 +2227,7 @@ function describeAIAction(act){
     const f = act.polja||{};
     return t('ai_action_add')+': "'+(f.opis||'')+'" '+fmtNum(f.iznos||0)+' '+(f.valuta||'').toLowerCase()+(f.kategorija?' · '+f.kategorija:'')+(f.datum?' ('+dmFromISO(f.datum)+')':'')+' — '+projName;
   }
-  const e = lsGet('entries:'+act.projekat_id);
+  const e = lsGet('troskovi:entries:'+act.projekat_id);
   const list = (e && e.value) ? JSON.parse(e.value) : [];
   const item = list.find(it=>it.id===act.stavka_id);
   const itemDesc = item ? (item.opis+' '+fmtNum(item.iznos)+' '+item.valuta.toLowerCase()+' ('+dmFromISO(item.datum)+')') : (act.stavka_id||'?');
@@ -2208,10 +2241,10 @@ function describeAIAction(act){
   return '';
 }
 function applyProjectEntriesChange(projectId, mutatorFn){
-  const e = lsGet('entries:'+projectId);
+  const e = lsGet('troskovi:entries:'+projectId);
   let list = (e && e.value) ? JSON.parse(e.value) : [];
   list = mutatorFn(list);
-  lsSet('entries:'+projectId, JSON.stringify(list));
+  lsSet('troskovi:entries:'+projectId, JSON.stringify(list));
   if(currentProjectId === projectId){
     entries = list;
     render();
@@ -2391,8 +2424,8 @@ function exportSelectedProjects(){
   const selProjects = projects.filter(p=>ids.includes(p.id));
   const backup = { version:1, exportedAt: new Date().toISOString(), projects: selProjects, data: {} };
   selProjects.forEach(p=>{
-    const e = lsGet('entries:'+p.id);
-    const r = lsGet('rates:'+p.id);
+    const e = lsGet('troskovi:entries:'+p.id);
+    const r = lsGet('troskovi:rates:'+p.id);
     backup.data[p.id] = {
       entries: (e && e.value) ? JSON.parse(e.value) : [],
       rates: (r && r.value) ? JSON.parse(r.value) : {}
@@ -2414,7 +2447,7 @@ function confirmDeleteSelectedProjects(){
   if(n===0) return;
   showConfirmModal(t('confirm_delete_projects')+' '+n+' '+t('confirm_delete_projects_end')+' '+t(n===1?'tr_goes':'tr_go_many').replace('{d}', getTrashDays()), ()=>{
     const idsToDelete = Array.from(selectedProjectIds);
-    idsToDelete.forEach(pid=>{ trashAddProject(pid); lsDelete('entries:'+pid); lsDelete('rates:'+pid); });
+    idsToDelete.forEach(pid=>{ trashAddProject(pid); lsDelete('troskovi:entries:'+pid); lsDelete('troskovi:rates:'+pid); });
     const wasCurrentDeleted = idsToDelete.includes(currentProjectId);
     projects = projects.filter(p=>!idsToDelete.includes(p.id));
     persistProjects();
@@ -2518,8 +2551,8 @@ function clearSelectedPhoto(){
 function exportBackup(){
   const backup = { version:1, exportedAt: new Date().toISOString(), projects: projects, data: {}, settings: { theme: getTheme() } };
   projects.forEach(p=>{
-    const e = lsGet('entries:'+p.id);
-    const r = lsGet('rates:'+p.id);
+    const e = lsGet('troskovi:entries:'+p.id);
+    const r = lsGet('troskovi:rates:'+p.id);
     backup.data[p.id] = {
       entries: (e && e.value) ? JSON.parse(e.value) : [],
       rates: (r && r.value) ? JSON.parse(r.value) : {}
@@ -2571,8 +2604,8 @@ function applyBackup(backup){
   projects = backup.projects;
   persistProjects();
   Object.keys(backup.data||{}).forEach(pid=>{
-    lsSet('entries:'+pid, JSON.stringify(backup.data[pid].entries||[]));
-    lsSet('rates:'+pid, JSON.stringify(backup.data[pid].rates||{}));
+    lsSet('troskovi:entries:'+pid, JSON.stringify(backup.data[pid].entries||[]));
+    lsSet('troskovi:rates:'+pid, JSON.stringify(backup.data[pid].rates||{}));
   });
   if(projects.length>0){
     currentProjectId = projects[0].id;
