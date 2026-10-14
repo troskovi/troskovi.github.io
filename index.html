@@ -684,6 +684,7 @@ html[data-theme] .entries-table tr.nr-row > td:first-child{ border-left:2px dash
 html[data-theme] .entries-table tr.nr-row > td:last-child{ border-right:2px dashed var(--nr-b); border-radius:0 10px 10px 0; }
 html[data-theme] .entries-table tr.nr-row td, html[data-theme] .entries-table tr.nr-row td *{ color:var(--nr-c) !important; }
 .nr-link{ font-weight:700; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
+.hd-rate .hr-v.hr-v-sm{ font-size:12px; letter-spacing:-.2px; }
 </style>
 </head>
 <body>
@@ -1497,7 +1498,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 27; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 28; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -3150,12 +3151,20 @@ function headerCurrency(base, others){
   if(p && p.lastRateCur && others.includes(p.lastRateCur)) return p.lastRateCur;
   return others[others.length-1];
 }
+/* v28: broj u kvadratu najviše 6 znakova (npr. 0,0025); tačan kurs je u prozoru Valuta */
+function fmtSquareRate(r){
+  if(r>=10) return String(Math.round(r));
+  if(r>=1) return fmtRate(r);
+  const v = Math.round(r*10000)/10000;
+  if(v===0) return '&lt;0,0001';
+  return String(v).replace('.', ',');
+}
 function headerRateHtml(base, others){
   if(!others || !others.length) return '<span class="hd-rate"><span class="hr-v">'+escapeHtml(base.toLowerCase())+'</span></span>';
   const dir = rateDir(headerCurrency(base, others), base);
   const r = convertRate(dir[0], dir[1]);
-  const v = r===null ? '?' : (r>=10 ? String(Math.round(r)) : fmtRate(r));
-  return '<span class="hd-rate"><span class="hr-c">'+dir[0].toLowerCase()+'</span><span class="hr-v num">'+v+'</span></span>';
+  const v = r===null ? '?' : fmtSquareRate(r);
+  return '<span class="hd-rate"><span class="hr-c">'+dir[0].toLowerCase()+'</span><span class="hr-v num'+(v.indexOf('&lt;')===0?' hr-v-sm':'')+'">'+v+'</span></span>';
 }
 function currencyWindowBody(){
   const base = baseCurrency();
