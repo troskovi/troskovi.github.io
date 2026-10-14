@@ -7,9 +7,11 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#163B69" id="metaThemeColor">
 <script>
-/* v19 = kod v12. Verzije v13–v18 su podatke premestile na ključeve 'troskovi:...'; v12 čita stare ('app:...', 'entries:', 'rates:').
-   Obrnut prenos, isti postupak kao u v13: upiši stari, proveri da je isti, tek onda obriši novi. Tako je stanje kao pre v13,
-   pa ga v13 (kad je ponovo objavimo) prenese ispravno, sa svim što je u međuvremenu uneto. Korpa ('troskovi:trash') ostaje — v12 je čita tako. */
+/* tema se postavlja pre prvog iscrtavanja, da ne bi "bljesnula" klasična */
+/* v13: ključevi sa prefiksom aplikacije (deljeni domen zoki02122.github.io). Prenos starih vrednosti radi se OVDE, pre svega ostalog:
+   ključ po ključ — upiši novi, proveri da je isti, tek onda obriši stari. Ako se prekine (npr. pun prostor), nastavlja pri sledećem
+   otvaranju. Stari ključ se briše samo kad je novi isti; ako postoje oba a razlikuju se, stari ostaje netaknut.
+   'app:apiKey' NAMERNO ostaje isti: Arhiva ga čita dugmetom „Koristi ključ iz Troškova“. */
 (function(){ try{
   var LS = localStorage;
   var names = ['projects','lastProjectId','lastRates','theme','backupIntervalDays','lastBackup','aiFormatStatus'];
@@ -18,19 +20,20 @@
   var ids = []; try{ ids = (JSON.parse(src||'[]')||[]).map(function(p){ return p.id; }); }catch(e){}
   ids.forEach(function(id){ pairs.push(['entries:'+id, 'troskovi:entries:'+id]); pairs.push(['rates:'+id, 'troskovi:rates:'+id]); });
   pairs.forEach(function(pr){
-    var v = LS.getItem(pr[1]); if(v===null) return;
-    LS.setItem(pr[0], v);
-    if(LS.getItem(pr[0])===v) LS.removeItem(pr[1]);
+    var v = LS.getItem(pr[0]); if(v===null) return;
+    /* v21: kad postoje oba, pobeđuje stari ključ — v19/v20 (kod v12) su pisali samo u stare, pa je stari ono što je korisnik poslednje video.
+       Zaostali 'troskovi:' iz v13–v18 je stariji i prepisuje se. Posle ovoga stari ključevi više ne nastaju (lsSet ih briše). */
+    if(LS.getItem(pr[1])!==v) LS.setItem(pr[1], v);
+    if(LS.getItem(pr[1])===v) LS.removeItem(pr[0]);
   });
 }catch(e){} })();
-/* tema se postavlja pre prvog iscrtavanja, da ne bi "bljesnula" klasična */
-(function(){ try{ var t = localStorage.getItem('app:theme'); if(t) document.documentElement.setAttribute('data-theme', t); }catch(e){} })();
+(function(){ try{ var t = localStorage.getItem('troskovi:theme') || localStorage.getItem('app:theme'); if(t) document.documentElement.setAttribute('data-theme', t); }catch(e){} })();
 </script>
 <!-- fontovi su ugrađeni u stil ispod (rade bez interneta i ne zavise od Google-a) -->
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Troškovi</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style/dist/xlsx.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
 <style>
   /* ugrađeni fontovi, samo latinica + naša slova: TR Serif (Noto Serif), TR Script (Dancing Script), TR Barlow, TR Barlow Condensed */
 @font-face{font-family:'TR Serif';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2');unicode-range:U+20-7E,U+AB,U+B0-B1,U+B7,U+BB,U+C0,U+C4,U+C8-C9,U+D6-D7,U+DC,U+DF-E0,U+E4,U+E8-E9,U+F6-F7,U+FC,U+2013-2014,U+2018-2019,U+201C-201E,U+2026,U+2039-203A,U+20AC;}
@@ -623,6 +626,49 @@ body.noting .modal-backdrop.settings-screen .modal, body.noting .modal-backdrop.
 .guide-item[open] summary{ color:var(--hd-acc, var(--blue-deep)); }
 .guide-item p{ margin:0; padding:0 14px 12px; font-size:14.5px; line-height:1.55; color:var(--text); }
 .guide-item p:last-child{ padding-bottom:16px; }
+
+/* ===== v14 ===== */
+.psel{ background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:8px 10px 10px; margin-bottom:10px; }
+.psel-top{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.psel-n{ flex:1; font-size:13px; font-weight:700; color:var(--hd-acc, var(--blue-deep)); }
+.psel-x{ border:none; background:none; color:var(--text-dim); font-size:18px; padding:2px 6px; cursor:pointer; }
+.psel-btns{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; }
+.psel-btns button{ min-width:0; padding:10px 4px; border-radius:9px; border:1px solid var(--hd-acc, var(--blue-deep)); background:var(--surface); color:var(--hd-acc, var(--blue-deep)); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.psel-btns button.danger{ border-color:var(--coral); background:var(--coral); color:#fff; }
+.psel-btns button:disabled{ opacity:.4; cursor:default; }
+.date-trio input.bad{ border-color:var(--coral) !important; box-shadow:0 0 0 2px color-mix(in srgb, var(--coral) 35%, transparent); }
+
+/* ===== v15: pločice Podešavanja zbijenije (cela lista staje na jedan ekran telefona) ===== */
+.set-body{ padding:12px 12px; }
+.set-tile{ gap:12px; padding:11px 14px; margin:0 0 7px; border-radius:13px; min-height:52px; }
+.set-tile .tile-icon{ font-size:21px; width:28px; }
+.set-tile .tile-title{ font-size:15px; line-height:1.25; }
+.set-tile .tile-sub{ font-size:12px; margin-top:2px; line-height:1.25; }
+.set-tile .tile-chev{ font-size:20px; }
+.set-tile.danger{ margin-top:14px; }
+
+/* ===== v16: Podešavanja u dve grupe ===== */
+.set-group{ font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--hd-acc, var(--blue-deep)); margin:6px 4px 7px; }
+.set-group ~ .set-group{ margin-top:16px; }
+.set-tile.danger{ margin-top:0; }
+
+/* ===== v18: pločice Podešavanja što niže, a pregledne (48 px = najmanja dodirna površina po Androidu) ===== */
+.set-body .set-tile{ min-height:48px; padding:6px 12px; margin:0 0 6px; gap:11px; border-radius:12px; }
+.set-body .set-tile .tile-icon{ font-size:20px; width:26px; }
+.set-body .set-tile .tile-title{ font-size:15px; line-height:1.2; }
+.set-body .set-tile .tile-sub{ font-size:12px; line-height:1.2; margin-top:1px; }
+.set-body .set-group{ margin:4px 4px 6px; }
+.set-body .set-group ~ .set-group{ margin-top:12px; }
+
+/* ===== v18: stavke troškova na početnom ekranu niže (Ponoć, Bankarstvo, Crna, Koža; Klasična je već zbijena) ===== */
+html[data-theme="ponoc"] table.entries-table td, html[data-theme="banka"] table.entries-table td,
+html[data-theme="crna"] table.entries-table td, html[data-theme="koza"] table.entries-table td{ padding-top:7px; padding-bottom:7px; line-height:1.25; }
+html[data-theme="ponoc"] td.col-opis .meta, html[data-theme="banka"] td.col-opis .meta,
+html[data-theme="crna"] td.col-opis .meta, html[data-theme="koza"] td.col-opis .meta{ margin-top:1px; line-height:1.25; }
+html[data-theme] td.col-amt .sub{ line-height:1.2; }
+html[data-theme="ponoc"] tr.total-row td{ padding-top:6px; padding-bottom:6px; }
+html[data-theme="ponoc"] table.entries-table tr[id] td{ padding-top:6px; padding-bottom:6px; }
+html[data-theme="banka"] tr.total-row td, html[data-theme="crna"] tr.total-row td, html[data-theme="koza"] tr.total-row td{ padding-top:8px; padding-bottom:8px; }
 </style>
 </head>
 <body>
@@ -690,9 +736,16 @@ const LANGS = [
 ];
 
 /* ---------- I18N: mehanizam za prevod cele aplikacije ---------- */
-function resolveAppLanguage(){
+/* v15: jezik važi za CELU aplikaciju (ključ troskovi:language). Ranije je bio po projektu: dok ključa nema,
+   uzima se jezik otvorenog projekta, a pri prvom otvaranju (loadAll) on postaje jezik aplikacije. */
+function getAppLanguageSetting(){
+  const v = lsGet('troskovi:language');
+  if(v && v.value) return v.value;
   const proj = currentProject();
-  const setting = proj ? proj.language : 'auto';
+  return (proj && proj.language) || 'auto';
+}
+function resolveAppLanguage(){
+  const setting = getAppLanguageSetting();
   if(setting && setting !== 'auto') return setting;
   const nav = (navigator.language || 'en').toLowerCase();
   return nav.startsWith('sr') ? 'sr-RS' : 'en-US';
@@ -722,8 +775,7 @@ const I18N = {
     category: 'kategorija',
     items_short: 'st.',
     manual_input_placeholder: 'ukucaj ili koristi mikrofon na tastaturi...',
-    project_settings_title: 'podešavanja projekta',
-    section_basic: 'osnovno',
+    section_basic: 'podaci o projektu',
     project_name: 'naziv projekta',
     app_language: 'jezik aplikacije',
     save: 'sačuvaj',
@@ -787,7 +839,6 @@ const I18N = {
     first_currency: 'prva valuta',
     second_currency: 'druga valuta',
     choose_diff_currencies: 'izaberi dve različite valute.',
-    date_modal_title: 'datum unosa',
     edit_entry_title: 'izmeni stavku',
     label_description: 'opis',
     label_amount: 'iznos',
@@ -795,10 +846,9 @@ const I18N = {
     label_note: 'napomena',
     confirm_delete_entry: 'obrisati ovu stavku troška?',
     no_projects_found: 'nema projekata koji odgovaraju pretrazi.',
-    created_on: 'napravljen',
     selected: 'izabrano',
     export_short: 'izvezi',
-    delete_short: 'obriši', rename_short: 'preimenuj', rename_title: 'Preimenuj projekat', note_renamed: 'Preimenovano:', enter_project_name: 'Unesi naziv projekta',
+    delete_short: 'obriši', rename_short: 'izmeni', rename_title: 'Izmeni projekat', enter_project_name: 'Unesi naziv projekta',
     exported_projects: 'izvezeno',
     projects_word: 'projekata',
     confirm_delete_projects: 'obrisati',
@@ -806,7 +856,7 @@ const I18N = {
     projects_deleted: 'projekata obrisano.',
     projects_title: 'projekti',
     search_projects_placeholder: '🔍 pretraži projekte...',
-    long_press_hint: 'dug dodir na projekat: preimenuj, izvezi ili obriši',
+    long_press_hint: 'dug dodir na projekat: izmeni, izvezi ili obriši',
     restored: 'vraćeno.',
     ai_processing_error: 'greška pri obradi. pokušaj ponovo.',
     ai_no_items_recognized: 'AI nije prepoznao nijednu stavku iz tog teksta. probaj drugačiju formulaciju (npr. "naziv 10 eur").',
@@ -851,6 +901,10 @@ const I18N = {
     ai_action_cancel: 'odbaci',
     ai_action_applied: 'gotovo - izmene su sačuvane.',
     guide_tile: 'uputstvo', guide_sub: 'kako se koristi aplikacija', guide_intro: 'dodirni naslov da pročitaš objašnjenje.',
+    settings_title: 'podešavanja', grp_project: 'ovaj projekat', grp_app: 'aplikacija · svi projekti',
+    excel_bad_dates: 'Stavke sa neispravnim datumom ({n}) dobile su današnji datum.',
+    hd_since: 'od', date_invalid: 'Taj datum ne postoji:', proj_date: 'datum projekta', note_proj_edited: 'Izmenjeno:',
+    lang_hint: 'jezik važi za celu aplikaciju i sve projekte; na njemu su i opisi troškova koje piše AI. „automatski“ uzima jezik telefona.',
     tr_tile: 'korpa', tr_empty_sub: 'prazna', tr_in: 'u korpi', tr_keeps: 'čuva', tr_days: 'dana', tr_day: 'dan',
     tr_days_label: 'čuvaj obrisano (dana)', tr_hint: 'obrisani troškovi i projekti čekaju ovde. kad prođe ovoliko dana, trajno se brišu pri otvaranju aplikacije. korpa se ne čuva u bekapu.',
     tr_is_empty: 'korpa je prazna.', tr_sel_all: 'izaberi sve', tr_sel_none: 'poništi izbor', tr_empty_btn: 'isprazni korpu',
@@ -886,8 +940,7 @@ const I18N = {
     category: 'category',
     items_short: 'items',
     manual_input_placeholder: 'type or use the keyboard microphone...',
-    project_settings_title: 'project settings',
-    section_basic: 'basics',
+    section_basic: 'project details',
     project_name: 'project name',
     app_language: 'app language',
     save: 'save',
@@ -951,7 +1004,6 @@ const I18N = {
     first_currency: 'first currency',
     second_currency: 'second currency',
     choose_diff_currencies: 'choose two different currencies.',
-    date_modal_title: 'entry date',
     edit_entry_title: 'edit item',
     label_description: 'description',
     label_amount: 'amount',
@@ -959,10 +1011,9 @@ const I18N = {
     label_note: 'note',
     confirm_delete_entry: 'delete this expense item?',
     no_projects_found: 'no projects match the search.',
-    created_on: 'created',
     selected: 'selected',
     export_short: 'export',
-    delete_short: 'delete', rename_short: 'rename', rename_title: 'Rename project', note_renamed: 'Renamed:', enter_project_name: 'Enter a project name',
+    delete_short: 'delete', rename_short: 'edit', rename_title: 'Edit project', enter_project_name: 'Enter a project name',
     exported_projects: 'exported',
     projects_word: 'projects',
     confirm_delete_projects: 'delete',
@@ -970,7 +1021,7 @@ const I18N = {
     projects_deleted: 'projects deleted.',
     projects_title: 'projects',
     search_projects_placeholder: '🔍 search projects...',
-    long_press_hint: 'long-press a project: rename, export or delete',
+    long_press_hint: 'long-press a project: edit, export or delete',
     restored: 'restored.',
     ai_processing_error: 'error while processing. please try again.',
     ai_no_items_recognized: 'the AI couldn\'t recognize any item in that text. try a different phrasing (e.g. "name 10 eur").',
@@ -1015,6 +1066,10 @@ const I18N = {
     ai_action_cancel: 'dismiss',
     ai_action_applied: 'done - changes saved.',
     guide_tile: 'user guide', guide_sub: 'how to use the app', guide_intro: 'tap a title to read the explanation.',
+    settings_title: 'settings', grp_project: 'this project', grp_app: 'app · all projects',
+    excel_bad_dates: 'Items with an invalid date ({n}) got today’s date.',
+    hd_since: 'since', date_invalid: 'That date does not exist:', proj_date: 'project date', note_proj_edited: 'Edited:',
+    lang_hint: 'the language applies to the whole app and all projects; AI also writes the expense descriptions in it. “automatic” uses the phone language.',
     tr_tile: 'trash', tr_empty_sub: 'empty', tr_in: 'in trash', tr_keeps: 'keeps', tr_days: 'days', tr_day: 'day',
     tr_days_label: 'keep deleted (days)', tr_hint: 'deleted expenses and projects wait here. after this many days they are deleted for good when the app opens. the trash is not in the backup.',
     tr_is_empty: 'the trash is empty.', tr_sel_all: 'select all', tr_sel_none: 'clear selection', tr_empty_btn: 'empty trash',
@@ -1042,6 +1097,44 @@ function dmyFromTimestamp(ts){
   return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();
 }
 function isoFromParts(d,m,y){ return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'); }
+/* v14: datum mora postojati u kalendaru (32.10, 31.11, 29.02 u neprestupnoj, mesec 13 → ne). Vraća koje polje je pogrešno ili null. */
+function badDatePart(d,m,y){
+  if(!(y>=2000 && y<=2100)) return 'y';
+  if(!(m>=1 && m<=12)) return 'm';
+  const days = new Date(y, m, 0).getDate();
+  if(!(d>=1 && d<=days)) return 'd';
+  return null;
+}
+/* v15: datum projekta = startDate (menja korisnik) ili, ako ga nema, dan kada je projekat napravljen */
+function projDateISO(p){
+  if(!p) return null;
+  return validIsoOrNull(p.startDate) || (p.createdAt ? todayISOFromDate(new Date(p.createdAt)) : null);
+}
+function dateTrioHtml(pref, iso){
+  const pr = (iso||todayISO()).split('-');
+  return '<div class="date-trio" data-chain>'+
+    '<input class="dd" type="text" inputmode="numeric" id="'+pref+'D" value="'+parseInt(pr[2])+'" placeholder="DD">'+
+    '<input class="mm" type="text" inputmode="numeric" id="'+pref+'M" value="'+parseInt(pr[1])+'" placeholder="MM">'+
+    '<input class="yy" type="text" inputmode="numeric" id="'+pref+'Y" value="'+pr[0]+'" placeholder="GGGG"></div>';
+}
+/* pročita i proveri datum iz tri polja; ako ne postoji: crveno polje + upozorenje, vraća null */
+function readDateTrio(pref){
+  const fD=document.getElementById(pref+'D'), fM=document.getElementById(pref+'M'), fY=document.getElementById(pref+'Y');
+  const d=parseInt(fD.value), m=parseInt(fM.value), y=parseInt(fY.value);
+  [fD,fM,fY].forEach(f=>f.classList.remove('bad'));
+  const bad = badDatePart(d,m,y);
+  if(bad){
+    (bad==='d'?fD:(bad==='m'?fM:fY)).classList.add('bad');
+    showNote(t('date_invalid')+' '+(fD.value||'?')+'.'+(fM.value||'?')+'.'+(fY.value||'?'), {warn:true});
+    return null;
+  }
+  return isoFromParts(d,m,y);
+}
+function validIsoOrNull(iso){
+  const mt = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
+  if(!mt) return null;
+  return badDatePart(+mt[3], +mt[2], +mt[1]) ? null : iso;
+}
 function fmtNum(n){
   const rounded = Math.round(n*100)/100;
   const neg = rounded < 0;
@@ -1063,21 +1156,37 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<
 
 
 /* ---------- PERSISTENCE (localStorage - radi trajno u Chrome-u) ---------- */
-function lsGet(key){ try{ const v = localStorage.getItem(key); return v===null ? null : {value:v}; }catch(e){ return null; } }
-function lsSet(key,val){ try{ localStorage.setItem(key, val); return {value:val}; }catch(e){ return null; } }
+/* v13: dok prenos na nove ključeve nije završen (prekid, pun prostor), čitanje uzima stari ključ ako novog nema,
+   a prvi uspešan upis pod novi ključ briše stari — tako se nijedna stara stavka ne sakrije iza novog unosa. */
+function lsOldKey(key){
+  if(key.indexOf('troskovi:entries:')===0) return 'entries:'+key.slice(17);
+  if(key.indexOf('troskovi:rates:')===0) return 'rates:'+key.slice(15);
+  if(key.indexOf('troskovi:')===0) return 'app:'+key.slice(9);
+  return null;
+}
+function lsGet(key){ try{
+  let v = localStorage.getItem(key);
+  if(v===null){ const o = lsOldKey(key); if(o && o!=='app:apiKey') v = localStorage.getItem(o); }
+  return v===null ? null : {value:v};
+}catch(e){ return null; } }
+function lsSet(key,val){ try{
+  localStorage.setItem(key, val);
+  const o = lsOldKey(key); if(o && o!=='app:apiKey' && localStorage.getItem(o)!==null) localStorage.removeItem(o);
+  return {value:val};
+}catch(e){ return null; } }
 
 /* ---------- BACKUP REMINDER ---------- */
 function getBackupIntervalDays(){
-  const v = lsGet('app:backupIntervalDays');
+  const v = lsGet('troskovi:backupIntervalDays');
   const n = v ? parseInt(v.value) : NaN;
   return (n && n > 0) ? n : 7;
 }
-function setBackupIntervalDays(days){ lsSet('app:backupIntervalDays', String(days)); }
+function setBackupIntervalDays(days){ lsSet('troskovi:backupIntervalDays', String(days)); }
 function getLastBackupDate(){
-  const v = lsGet('app:lastBackup');
+  const v = lsGet('troskovi:lastBackup');
   return v ? new Date(v.value) : null;
 }
-function markBackupDone(){ lsSet('app:lastBackup', new Date().toISOString()); }
+function markBackupDone(){ lsSet('troskovi:lastBackup', new Date().toISOString()); }
 
 /* ---------- TEME (izgled cele aplikacije, ne zavisi od projekta) ---------- */
 const THEMES = [
@@ -1088,7 +1197,7 @@ const THEMES = [
   {id:'klasicna', sr:'Klasična',            en:'Classic',          bar:'#163B69', bg:'#FFFFFF', card:'#163B69', num:'#F5C15C'}
 ];
 function getTheme(){
-  const v = lsGet('app:theme');
+  const v = lsGet('troskovi:theme');
   return (v && THEMES.some(x=>x.id===v.value)) ? v.value : 'klasicna';
 }
 function themeName(id){
@@ -1103,7 +1212,7 @@ function applyTheme(id){
 }
 function setTheme(id){
   if(!THEMES.some(x=>x.id===id)) return;
-  lsSet('app:theme', id);
+  lsSet('troskovi:theme', id);
   applyTheme(id);
 }
 function pickTheme(id){
@@ -1318,12 +1427,12 @@ function saveBackupInterval(val){
   setBackupIntervalDays(n);
   render();
 }
-function lsDelete(key){ try{ localStorage.removeItem(key); }catch(e){} }
+function lsDelete(key){ try{ localStorage.removeItem(key); const o = lsOldKey(key); if(o && o!=='app:apiKey') localStorage.removeItem(o); }catch(e){} }
 
 async function loadAll(){
-  const p = lsGet('app:projects');
+  const p = lsGet('troskovi:projects');
   if(p && p.value){ try{ projects = JSON.parse(p.value); }catch(e){ projects=[]; } }
-  const l = lsGet('app:lastProjectId');
+  const l = lsGet('troskovi:lastProjectId');
   if(l && l.value) currentProjectId = l.value;
 
   if(projects.length === 0){
@@ -1341,32 +1450,33 @@ async function loadAll(){
   });
   if(anyDateReset) persistProjects();
   purgeExpiredTrash();
+  if(!lsGet('troskovi:language')) lsSet('troskovi:language', getAppLanguageSetting());
   loadProjectData(currentProjectId);
   render();
 }
-function persistProjects(){ lsSet('app:projects', JSON.stringify(projects)); }
-function persistLastProject(){ lsSet('app:lastProjectId', currentProjectId); }
+function persistProjects(){ lsSet('troskovi:projects', JSON.stringify(projects)); }
+function persistLastProject(){ lsSet('troskovi:lastProjectId', currentProjectId); }
 function loadProjectData(pid){
-  const e = lsGet('entries:'+pid);
+  const e = lsGet('troskovi:entries:'+pid);
   entries = (e && e.value) ? JSON.parse(e.value) : [];
   /* v7: isti naziv valute uvek isti kod (din → RSD, € → EUR …) */
   let curFixed = false;
   entries.forEach(it=>{ const c = normCur(it.valuta); if(c && c!==it.valuta){ it.valuta = c; curFixed = true; } });
-  if(curFixed) lsSet('entries:'+pid, JSON.stringify(entries));
-  const r = lsGet('rates:'+pid);
+  if(curFixed) lsSet('troskovi:entries:'+pid, JSON.stringify(entries));
+  const r = lsGet('troskovi:rates:'+pid);
   rates = (r && r.value) ? JSON.parse(r.value) : {};
 }
-function persistEntries(){ lsSet('entries:'+currentProjectId, JSON.stringify(entries)); }
-function persistRates(){ lsSet('rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 20; /* svaka objava: +1, i isti broj u linku ?v=N */
+function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
+function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
+const APP_VERSION = 21; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
 function saveAiFormatStatus(mode, rejections){
-  lsSet('app:aiFormatStatus', JSON.stringify({ mode: mode, reasons: rejections || [], at: new Date().toISOString() }));
+  lsSet('troskovi:aiFormatStatus', JSON.stringify({ mode: mode, reasons: rejections || [], at: new Date().toISOString() }));
 }
 function aiFormatStatusHtml(){
-  const r = lsGet('app:aiFormatStatus');
+  const r = lsGet('troskovi:aiFormatStatus');
   if(!r) return '';
   let st; try{ st = JSON.parse(r.value); }catch(e){ return ''; }
   if(!st || !st.mode) return '';
@@ -1461,13 +1571,13 @@ function fmtRate(v){
   return p[0] + (p[1] ? ','+p[1] : '');
 }
 function getLastGlobalRates(){
-  const r = lsGet('app:lastRates');
+  const r = lsGet('troskovi:lastRates');
   return (r && r.value) ? JSON.parse(r.value) : {};
 }
 function saveLastGlobalRate(key, val){
   const all = getLastGlobalRates();
   all[key] = val;
-  lsSet('app:lastRates', JSON.stringify(all));
+  lsSet('troskovi:lastRates', JSON.stringify(all));
 }
 function setRate(foreign, base, val){
   const v = parseNum(val);
@@ -1564,7 +1674,7 @@ function trashAddEntry(entry, projectId){
 }
 function trashAddProject(pid){
   const proj = projects.find(p=>p.id===pid); if(!proj) return;
-  const e = lsGet('entries:'+pid), r = lsGet('rates:'+pid);
+  const e = lsGet('troskovi:entries:'+pid), r = lsGet('troskovi:rates:'+pid);
   let ents = [], rts = {};
   try{ ents = (e && e.value) ? JSON.parse(e.value) : []; }catch(x){}
   try{ rts = (r && r.value) ? JSON.parse(r.value) : {}; }catch(x){}
@@ -1625,8 +1735,8 @@ function trashRestoreSelected(){
     if(projects.some(p=>p.id===proj.id)) proj = Object.assign({}, proj, { id: uid('p') });
     proj.activeDate = todayISO();
     projects.push(proj);
-    lsSet('entries:'+proj.id, JSON.stringify(x.entries||[]));
-    lsSet('rates:'+proj.id, JSON.stringify(x.rates||{}));
+    lsSet('troskovi:entries:'+proj.id, JSON.stringify(x.entries||[]));
+    lsSet('troskovi:rates:'+proj.id, JSON.stringify(x.rates||{}));
     lastMsg = t('tr_restored_proj')+' '+proj.name;
   });
   persistProjects();
@@ -1663,17 +1773,13 @@ function deleteProject(pid){
   const proj = projects.find(p=>p.id===pid);
   trashAddProject(pid);
   projects = projects.filter(p=>p.id!==pid);
-  lsDelete('entries:'+pid);
-  lsDelete('rates:'+pid);
+  lsDelete('troskovi:entries:'+pid);
+  lsDelete('troskovi:rates:'+pid);
   persistProjects();
   if(projects.length===0){ createProject(null,'auto'); }
   else if(currentProjectId===pid){ switchProject(projects[0].id); }
   else { render(); }
   if(proj) showNote(t('tr_moved_proj')+' '+proj.name);
-}
-function setActiveDate(iso){
-  const proj = currentProject();
-  if(proj){ proj.activeDate = iso; persistProjects(); render(); }
 }
 
 /* ---------- ENTRY ACTIONS ---------- */
@@ -1685,7 +1791,7 @@ function commitEntries(items){
   items.forEach(it=>{
     const id = uid('e');
     entries.push({
-      id: id, datum: it.datum || proj.activeDate || todayISO(),
+      id: id, datum: validIsoOrNull(it.datum) || todayISO(),
       opis: it.opis, iznos: it.iznos, valuta: normCur(it.valuta) || baseCurrency(),
       kategorija: it.kategorija || 'ostalo', napomena: it.napomena || ''
     });
@@ -1828,7 +1934,7 @@ async function parseImageWithAI(dataUrl, caption){
 
 function findDuplicateEntry(item){
   const proj = currentProject();
-  const datum = item.datum || (proj ? proj.activeDate : todayISO());
+  const datum = validIsoOrNull(item.datum) || todayISO();
   const opisNorm = (item.opis||'').trim().toLowerCase();
   return entries.find(e =>
     e.datum === datum &&
@@ -2069,7 +2175,7 @@ function render(){
     '<div class="hd-title" onclick="openProjectSwitcher()">'+
     '<span class="hd-mark"></span>'+
     '<span class="hd-name">'+escapeHtml(proj.name)+'</span><span class="hd-chev">▾</span>'+
-    '<span class="hd-date" onclick="event.stopPropagation(); openDateModal();">'+dmyFromISO(proj.activeDate)+'</span>'+
+    (projDateISO(proj) ? '<span class="hd-date" onclick="event.stopPropagation(); openProjectData();">'+t('hd_since')+' '+dmyFromISO(projDateISO(proj))+'</span>' : '')+
     '</div>'+
     '<button class="icon-btn" onclick="openProjectSettings()" title="'+t('settings')+'">'+ic('⚙','gear')+'</button>'+
     '</div>'+
@@ -2101,13 +2207,13 @@ function render(){
 }
 function buildAllProjectsSummary(){
   return projects.map(p=>{
-    const e = lsGet('entries:'+p.id);
+    const e = lsGet('troskovi:entries:'+p.id);
     const list = (e && e.value) ? JSON.parse(e.value) : [];
     const items = list.map(it=>({
       id: it.id, opis: it.opis, iznos: it.iznos, valuta: it.valuta,
       kategorija: it.kategorija||'', datum: it.datum, napomena: it.napomena||''
     }));
-    const r = lsGet('rates:'+p.id);
+    const r = lsGet('troskovi:rates:'+p.id);
     const projRates = (r && r.value) ? JSON.parse(r.value) : {};
     const rateList = Object.keys(projRates).map(key=>{
       const [a,b] = key.split('_');
@@ -2210,7 +2316,7 @@ function describeAIAction(act){
     const f = act.polja||{};
     return t('ai_action_add')+': "'+(f.opis||'')+'" '+fmtNum(f.iznos||0)+' '+(f.valuta||'').toLowerCase()+(f.kategorija?' · '+f.kategorija:'')+(f.datum?' ('+dmFromISO(f.datum)+')':'')+' — '+projName;
   }
-  const e = lsGet('entries:'+act.projekat_id);
+  const e = lsGet('troskovi:entries:'+act.projekat_id);
   const list = (e && e.value) ? JSON.parse(e.value) : [];
   const item = list.find(it=>it.id===act.stavka_id);
   const itemDesc = item ? (item.opis+' '+fmtNum(item.iznos)+' '+item.valuta.toLowerCase()+' ('+dmFromISO(item.datum)+')') : (act.stavka_id||'?');
@@ -2224,10 +2330,10 @@ function describeAIAction(act){
   return '';
 }
 function applyProjectEntriesChange(projectId, mutatorFn){
-  const e = lsGet('entries:'+projectId);
+  const e = lsGet('troskovi:entries:'+projectId);
   let list = (e && e.value) ? JSON.parse(e.value) : [];
   list = mutatorFn(list);
-  lsSet('entries:'+projectId, JSON.stringify(list));
+  lsSet('troskovi:entries:'+projectId, JSON.stringify(list));
   if(currentProjectId === projectId){
     entries = list;
     render();
@@ -2356,8 +2462,8 @@ function renderProjectList(){
   list.innerHTML = filtered.map(p=>{
     const sel = selectedProjectIds.has(p.id);
     const checkbox = selectMode ? ('<span style="width:21px;height:21px;border-radius:6px;border:2px solid '+(sel?'var(--accent)':'var(--line)')+';background:'+(sel?'var(--accent)':'transparent')+';display:flex;align-items:center;justify-content:center;color:var(--on-accent);font-size:13px;font-weight:800;flex:none;">'+(sel?'✓':'')+'</span>') : '';
-    const createdStr = p.createdAt ? dmyFromTimestamp(p.createdAt) : '';
-    return '<div class="proj-item '+(p.id===currentProjectId && !selectMode?'active':'')+'" onclick="handleProjectRowClick(\''+p.id+'\')" ontouchstart="startLongPress(\''+p.id+'\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+checkbox+'<div style="display:flex; flex-direction:column; min-width:0;"><span class="pname">'+escapeHtml(p.name)+'</span>'+(createdStr?('<span style="font-size:10.5px; color:var(--text-dim); margin-top:2px;">'+t('created_on')+' '+createdStr+'</span>'):'')+'</div></div>';
+    const createdStr = projDateISO(p) ? dmyFromISO(projDateISO(p)) : '';
+    return '<div class="proj-item '+(p.id===currentProjectId && !selectMode?'active':'')+'" onclick="handleProjectRowClick(\''+p.id+'\')" ontouchstart="startLongPress(\''+p.id+'\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">'+checkbox+'<div style="display:flex; flex-direction:column; min-width:0;"><span class="pname">'+escapeHtml(p.name)+'</span>'+(createdStr?('<span style="font-size:10.5px; color:var(--text-dim); margin-top:2px;">'+t('hd_since')+' '+createdStr+'</span>'):'')+'</div></div>';
   }).join('');
 }
 function startLongPress(pid){
@@ -2393,13 +2499,14 @@ function renderProjectSelectionBar(){
   if(!bar) return;
   if(!selectMode){ bar.innerHTML = ''; return; }
   const n = selectedProjectIds.size;
-  bar.innerHTML = '<div style="display:flex;align-items:center;gap:7px;background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:10px;">'+
-    '<span style="flex:1;font-size:12.5px;font-weight:700;color:var(--blue-deep);">'+n+' '+t('selected')+'</span>'+
-    '<button onclick="openRenameSelectedProject()" '+(n!==1?'disabled':'')+' style="border:1px solid var(--blue-deep);background:var(--surface);color:var(--blue-deep);border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;cursor:pointer;'+(n!==1?'opacity:.4;':'')+'">✎ '+t('rename_short')+'</button>'+
-    '<button onclick="exportSelectedProjects()" '+(n===0?'disabled':'')+' style="border:1px solid var(--blue-deep);background:var(--surface);color:var(--blue-deep);border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;cursor:pointer;">⬇ '+t('export_short')+'</button>'+
-    '<button onclick="confirmDeleteSelectedProjects()" '+(n===0?'disabled':'')+' style="border:1px solid var(--coral);background:var(--coral);color:#fff;border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:700;cursor:pointer;">🗑 '+t('delete_short')+'</button>'+
-    '<button onclick="exitSelectMode()" style="border:none;background:none;color:var(--text-dim);font-size:16px;padding:2px 4px;cursor:pointer;">✕</button>'+
-    '</div>';
+  /* v14: tri dugmeta iste širine (ne zavisi od teksta), u svom redu ispod naslova */
+  bar.innerHTML = '<div class="psel">'+
+    '<div class="psel-top"><span class="psel-n">'+n+' '+t('selected')+'</span><button class="psel-x" onclick="exitSelectMode()">✕</button></div>'+
+    '<div class="psel-btns">'+
+    '<button onclick="openRenameSelectedProject()" '+(n!==1?'disabled':'')+'>✎ '+t('rename_short')+'</button>'+
+    '<button onclick="exportSelectedProjects()" '+(n===0?'disabled':'')+'>⬇ '+t('export_short')+'</button>'+
+    '<button class="danger" onclick="confirmDeleteSelectedProjects()" '+(n===0?'disabled':'')+'>🗑 '+t('delete_short')+'</button>'+
+    '</div></div>';
 }
 function exportSelectedProjects(){
   const ids = Array.from(selectedProjectIds);
@@ -2407,8 +2514,8 @@ function exportSelectedProjects(){
   const selProjects = projects.filter(p=>ids.includes(p.id));
   const backup = { version:1, exportedAt: new Date().toISOString(), projects: selProjects, data: {} };
   selProjects.forEach(p=>{
-    const e = lsGet('entries:'+p.id);
-    const r = lsGet('rates:'+p.id);
+    const e = lsGet('troskovi:entries:'+p.id);
+    const r = lsGet('troskovi:rates:'+p.id);
     backup.data[p.id] = {
       entries: (e && e.value) ? JSON.parse(e.value) : [],
       rates: (r && r.value) ? JSON.parse(r.value) : {}
@@ -2430,7 +2537,7 @@ function confirmDeleteSelectedProjects(){
   if(n===0) return;
   showConfirmModal(t('confirm_delete_projects')+' '+n+' '+t('confirm_delete_projects_end')+' '+t(n===1?'tr_goes':'tr_go_many').replace('{d}', getTrashDays()), ()=>{
     const idsToDelete = Array.from(selectedProjectIds);
-    idsToDelete.forEach(pid=>{ trashAddProject(pid); lsDelete('entries:'+pid); lsDelete('rates:'+pid); });
+    idsToDelete.forEach(pid=>{ trashAddProject(pid); lsDelete('troskovi:entries:'+pid); lsDelete('troskovi:rates:'+pid); });
     const wasCurrentDeleted = idsToDelete.includes(currentProjectId);
     projects = projects.filter(p=>!idsToDelete.includes(p.id));
     persistProjects();
@@ -2448,7 +2555,8 @@ function openRenameSelectedProject(){
   const proj = projects.find(p=>p.id===pid); if(!proj) return;
   const backdrop=document.createElement('div'); backdrop.className='modal-backdrop small-modal'; backdrop.id='confirmBackdrop';
   backdrop.innerHTML = '<div class="modal"><button class="modal-close-x" onclick="closeConfirmModal()">✕</button><h2>'+t('rename_title')+'</h2>'+
-    '<div class="field"><label>'+t('project_name')+'</label><input type="text" id="renameProjInput" value="'+escapeHtml(proj.name)+'" maxlength="40" onkeydown="if(event.key===\'Enter\'){ event.preventDefault(); saveRenameSelectedProject(\''+pid+'\'); }"></div>'+
+    '<div data-chain><div class="field"><label>'+t('project_name')+'</label><input type="text" id="renameProjInput" value="'+escapeHtml(proj.name)+'" maxlength="40"></div>'+
+    '<div class="field"><label>'+t('proj_date')+'</label>'+dateTrioHtml('rp', projDateISO(proj))+'</div></div>'+
     '<div class="modal-actions"><button class="cancel-btn" onclick="closeConfirmModal()">'+t('cancel')+'</button>'+
     '<button class="create-btn" onclick="saveRenameSelectedProject(\''+pid+'\')">'+t('save')+'</button></div></div>';
   anchorUnderHeader(backdrop);
@@ -2461,13 +2569,14 @@ function saveRenameSelectedProject(pid){
   const inp = document.getElementById('renameProjInput'); if(!inp) return;
   const name = inp.value.trim();
   if(!name){ showNote(t('enter_project_name'), {warn:true}); inp.focus(); return; }
+  const iso = readDateTrio('rp'); if(!iso) return;
   const proj = projects.find(p=>p.id===pid); if(!proj) return;
-  proj.name = name;
+  proj.name = name; proj.startDate = iso;
   persistProjects();
   closeConfirmModal();
   selectMode = false; selectedProjectIds = new Set();
   renderProjectList(); renderProjectSelectionBar(); render();
-  showNote(t('note_renamed')+' '+name);
+  showNote(t('note_proj_edited')+' '+name);
 }
 function filterProjectList(v){ projectSearchQuery = v; renderProjectList(); }
 function openProjectSwitcher(){
@@ -2532,10 +2641,10 @@ function clearSelectedPhoto(){
   render();
 }
 function exportBackup(){
-  const backup = { version:1, exportedAt: new Date().toISOString(), projects: projects, data: {}, settings: { theme: getTheme() } };
+  const backup = { version:1, exportedAt: new Date().toISOString(), projects: projects, data: {}, settings: { theme: getTheme(), language: getAppLanguageSetting() } };
   projects.forEach(p=>{
-    const e = lsGet('entries:'+p.id);
-    const r = lsGet('rates:'+p.id);
+    const e = lsGet('troskovi:entries:'+p.id);
+    const r = lsGet('troskovi:rates:'+p.id);
     backup.data[p.id] = {
       entries: (e && e.value) ? JSON.parse(e.value) : [],
       rates: (r && r.value) ? JSON.parse(r.value) : {}
@@ -2584,11 +2693,12 @@ function handleImportFile(fileInput){
 }
 function applyBackup(backup){
   if(backup.settings && backup.settings.theme) setTheme(backup.settings.theme);
+  if(backup.settings && backup.settings.language) lsSet('troskovi:language', backup.settings.language);
   projects = backup.projects;
   persistProjects();
   Object.keys(backup.data||{}).forEach(pid=>{
-    lsSet('entries:'+pid, JSON.stringify(backup.data[pid].entries||[]));
-    lsSet('rates:'+pid, JSON.stringify(backup.data[pid].rates||{}));
+    lsSet('troskovi:entries:'+pid, JSON.stringify(backup.data[pid].entries||[]));
+    lsSet('troskovi:rates:'+pid, JSON.stringify(backup.data[pid].rates||{}));
   });
   if(projects.length>0){
     currentProjectId = projects[0].id;
@@ -2812,6 +2922,7 @@ function settingsTile(icon, title, sub, onclick, extraClass){
     '<span class="tile-text"><span class="tile-title">'+escapeHtml(title)+'</span>'+(sub?'<span class="tile-sub">'+escapeHtml(sub)+'</span>':'')+'</span>'+
     '<span class="tile-chev">›</span></button>';
 }
+function openProjectData(){ openProjectSettings(); openSettingsSub('basic'); }
 function openProjectSettings(){
   const backdrop=document.createElement('div'); backdrop.className='modal-backdrop settings-screen'; backdrop.id='modalBackdrop';
   backdrop.innerHTML = '<div class="modal" id="settingsModal"></div>';
@@ -2823,23 +2934,27 @@ function renderSettingsTiles(){
   const m = document.getElementById('settingsModal');
   if(!m) return;
   const proj = currentProject() || {name:'', language:'auto'};
-  const langObj = LANGS.find(l=>l.code===proj.language);
-  m.innerHTML = settingsHeader(t('project_settings_title'), 'closeModal')+
+  const langObj = LANGS.find(l=>l.code===getAppLanguageSetting());
+  /* v16: dve grupe — šta važi samo za otvoreni projekat, a šta za celu aplikaciju */
+  m.innerHTML = settingsHeader(t('settings_title'), 'closeModal')+
     '<div class="set-body">'+
-    settingsTile('📝', t('section_basic'), proj.name+(langObj?' · '+langObj.label:''), "openSettingsSub('basic')")+
+    '<div class="set-group">'+t('grp_project')+' · '+escapeHtml(proj.name)+'</div>'+
+    settingsTile('📝', t('section_basic'), proj.name+(projDateISO(proj)?' · '+t('hd_since')+' '+dmyFromISO(projDateISO(proj)):''), "openSettingsSub('basic')")+
     settingsTile('📊', t('tile_excel'), t('tile_excel_sub'), "openSettingsSub('excel')")+
+    settingsTile('🗑', t('delete_project'), t('tile_delete_sub'), 'confirmDeleteProject()', 'danger')+
+    '<div class="set-group">'+t('grp_app')+'</div>'+
+    settingsTile('🌐', t('app_language'), langObj?langObj.label:'', "openSettingsSub('lang')")+
     settingsTile('🎨', t('tile_theme'), themeName(getTheme()), "openSettingsSub('theme')")+
     settingsTile('💾', t('tile_backup'), t('last_backup_label')+': '+lastBackupDisplay(), "openSettingsSub('backup')")+
     settingsTile('🔑', t('tile_gemini_key'), getApiKey() ? t('key_status_set') : t('key_status_missing'), "openSettingsSub('key')")+
-    settingsTile('📖', t('guide_tile'), t('guide_sub'), "openSettingsSub('guide')")+
     settingsTile('♻️', t('tr_tile'), trashTileSub(), "openSettingsSub('trash')")+
-    settingsTile('🗑', t('delete_project'), t('tile_delete_sub'), 'confirmDeleteProject()', 'danger')+
+    settingsTile('📖', t('guide_tile'), t('guide_sub'), "openSettingsSub('guide')")+
     '<div class="settings-hint" id="appVersionLabel" style="text-align:center; padding-top:16px;">'+t('version_label')+' '+APP_VERSION+'</div>'+
     '</div>';
   m.scrollTop = 0;
 }
 /* v12: korisničko uputstvo (Podešavanja → uputstvo), kao u Arhivi: naslovi koji se otvaraju dodirom */
-const GUIDE = { 'sr-RS': [["Unos troška", "Dodirni polje dole i upiši trošak, ili ga izgovori preko mikrofona na tastaturi, npr. „kafa 300 dinara“ ili „gorivo 6200 i parking 900“. Dok pišeš, polje se raširi do zaglavlja; dodir van polja ili korak nazad ga zatvara.", "Strelica ili taster Enter šalje tekst. AI izdvaja opis, iznos, valutu i kategoriju; više troškova u jednoj rečenici postaju posebne stavke. Datum je datum unosa iz zaglavlja, osim kad ga kažeš (npr. „juče“).", "Trošak se čuva odmah, a gore piše šta je sačuvano. Tastatura ostaje otvorena za sledeći unos. Ako isti trošak već postoji u projektu, aplikacija prvo pita da li da ga doda ponovo."], ["Slika računa", "Kvadrat „Račun“ u zaglavlju nudi kameru, galeriju ili fajl (slika ili PDF). Izabrana slika se vidi iznad polja za unos; možeš dopisati napomenu i dodirnuti strelicu.", "AI čita stavke sa računa. Kad pojedinačne stavke nisu čitljive, uzima ukupan iznos kao jednu stavku."], ["Ispravka i brisanje", "Dodir na stavku otvara „izmeni stavku“ preko celog ekrana: datum, opis, iznos, valuta, kategorija i napomena. Strelice ↶ ↷ gore vraćaju kucanje reč po reč. „sačuvaj“ čuva izmenu, „otkaži“ ili korak nazad izlazi bez izmene.", "Crvena kanta briše stavku: prvo pita, pa stavka ide u korpu, odakle može da se vrati."], ["Zaglavlje", "Gore je naziv projekta (dodir otvara sve projekte), datum unosa (dodir ga menja; svakog dana se sam vrati na današnji) i ⚙ za Podešavanja.", "Ispod su kvadrati: Projekat (nov projekat), Pretraži, Valuta, Sortiraj i Račun. Kartica „ukupno“ pokazuje zbir projekta i broj stavki."], ["Projekti", "Dodir na naziv projekta otvara sve projekte preko celog ekrana; gore je pretraga po nazivu, a dodir na projekat ga otvara. Nov projekat praviš kvadratom „Projekat“.", "Dug pritisak na projekat ga označava i otvara traku izbora: „preimenuj“ (kad je izabran tačno jedan), „izvezi“ (JSON fajl izabranih) i „obriši“ (ide u korpu). ✕ prekida izbor."], ["Valute i kurs", "Svaki projekat ima obračunsku valutu: sve stavke i zbirovi su krupno u njoj, a originalni iznos sitno ispod, kad je u drugoj valuti.", "Prozor „Valuta“ menja obračunsku valutu i za svaku stranu valutu iz stavki ima jedan kurs, za ceo projekat. Kurs se upisuje kao u menjačnici: „1 jača valuta = koliko slabije“.", "Stavka bez kursa ima crveno „nema kurs“, a ispod zbira piše „+ N stavki bez kursa ›“; dodir vodi pravo na upis kursa."], ["Pretraga i sortiranje", "Kvadrat „Pretraži“ otvara polje za reč (npr. „kafa“). Dok pretraga traje, kartica „ukupno“ pokazuje zbir samo pronađenih stavki. ✕ ili brisanje reči vraća ukupno projekta.", "Kvadrat „Sortiraj“ ređa stavke po datumu, po kategoriji ili po nazivu."], ["AI čet", "Dugme sa oblačićem dole levo otvara razgovor sa AI. Pitaj bilo šta o troškovima svih projekata, npr. „koliko sam potrošio na hranu?“.", "AI može da predloži izmenu (dodaj, izmeni ili obriši stavku), ali je ne radi sam: predlog primenjuješ tek kad ga potvrdiš. Obrisano iz četa takođe ide u korpu."], ["Obaveštenja", "Posle svake radnje gore se pojavi obaveštenje. Kvačica znači da je urađeno, a crveni znak „!“ da nešto treba proveriti (npr. nema interneta ili ključa).", "Obaveštenje posle par sekundi samo nestane; dodir ga ne zatvara, pa za to vreme možeš normalno da radiš. Dok stoji, ekran je spušten, ne zaklonjen."], ["Korpa", "Obrisani troškovi i projekti idu u korpu (Podešavanja → korpa) i tamo čekaju zadati broj dana (podrazumevano 30), a zatim se trajno brišu pri otvaranju aplikacije.", "Dodir na stavku u korpi je označava; dole se pojave „Vrati“ i „Obriši trajno“. Projekat se vraća sa svim stavkama i kursevima. Trošak se vraća u svoj projekat, a ako taj projekat više ne postoji, u otvoren projekat.", "„isprazni korpu“ trajno briše sve. Trajno brisanje uvek još jednom pita."], ["Rezervna kopija", "Sve aplikacije na adresi zoki02122.github.io dele isto mesto za podatke: kad se u Chrome-u obrišu podaci sajta, nestaju podaci svih njih. Zato redovno čuvaj rezervnu kopiju.", "Podešavanja → rezervna kopija: „izvezi“ preuzima jedan JSON fajl sa svim projektima (sačuvaj ga npr. na Google Drive), a „uvezi“ ga vraća. Kad prođe zadati broj dana bez kopije (podrazumevano 7), na vrhu se pojavi crvena traka-podsetnik.", "Korpa i Gemini ključ ne idu u rezervnu kopiju."], ["Excel", "Podešavanja → Excel: izvoz otvorenog projekta u Excel tabelu, ili uvoz tabele u ovaj ili u nov projekat."], ["Ostala podešavanja", "Osnovno: naziv projekta i jezik (automatski po telefonu, srpski ili engleski); na tom jeziku su aplikacija i opisi troškova koje piše AI. Tema: pet izgleda, promena se vidi odmah.", "Gemini API ključ: pravi se besplatno na aistudio.google.com (Get API key) i čuva samo na ovom telefonu. Bez ključa unos glasom, tekstom i slikom ne radi.", "Na dnu Podešavanja piše broj verzije aplikacije."]], 'en-US': [["Adding an expense", "Tap the field at the bottom and type an expense, or dictate it with the keyboard microphone, e.g. “coffee 3 euros” or “fuel 60 and parking 9”. While you type, the field grows up to the header; tapping outside it or going back closes it.", "The arrow or the Enter key sends the text. AI picks out the description, amount, currency and category; several expenses in one sentence become separate items. The date is the entry date in the header, unless you say one (e.g. “yesterday”).", "The expense is saved right away and a notice at the top says what was saved. The keyboard stays open for the next entry. If the same expense already exists in the project, the app first asks whether to add it again."], ["Receipt photo", "The “Receipt” square in the header offers the camera, the gallery or a file (image or PDF). The chosen image is shown above the input field; you can add a note and tap the arrow.", "AI reads the items from the receipt. When single items are not readable, it takes the total as one item."], ["Editing and deleting", "Tapping an item opens “edit item” on the full screen: date, description, amount, currency, category and note. The ↶ ↷ arrows at the top undo typing word by word. “save” saves the change, “cancel” or going back leaves without changes.", "The red bin deletes the item: it asks first, then the item goes to the trash, where it can be restored."], ["Header", "At the top are the project name (tap to open all projects), the entry date (tap to change it; every day it returns to today on its own) and ⚙ for Settings.", "Below are the squares: Project (new project), Search, Currency, Sort and Receipt. The “total” card shows the project total and the number of items."], ["Projects", "Tapping the project name opens all projects on the full screen; search by name is at the top, and tapping a project opens it. Make a new project with the “Project” square.", "Long-press a project to select it and open the selection bar: “rename” (when exactly one is selected), “export” (a JSON file of the selected) and “delete” (goes to the trash). ✕ ends the selection."], ["Currencies and rates", "Every project has an accounting currency: all items and totals are shown large in it, with the original amount small below when it is in another currency.", "The “Currency” window changes the accounting currency and has one rate for each foreign currency in the items, for the whole project. Enter the rate as at an exchange office: “1 stronger currency = how much of the weaker”.", "An item without a rate shows a red “no rate”, and below the total it says “+ N items without rate ›”; tapping it goes straight to entering the rate."], ["Search and sorting", "The “Search” square opens a field for a word (e.g. “coffee”). While searching, the “total” card shows the sum of the found items only. ✕ or clearing the word brings back the project total.", "The “Sort” square orders items by date, by category or by name."], ["AI chat", "The speech-bubble button at the bottom left opens a chat with AI. Ask anything about the expenses of all projects, e.g. “how much did I spend on food?”.", "AI can suggest a change (add, edit or delete an item), but never makes it on its own: a suggestion is applied only when you confirm it. Items deleted from the chat also go to the trash."], ["Notices", "After every action a notice appears at the top. A check mark means it is done, a red “!” that something needs checking (e.g. no internet or no key).", "The notice disappears on its own after a few seconds; tapping does not close it, so you can keep working. While it is shown, the screen moves down instead of being covered."], ["Trash", "Deleted expenses and projects go to the trash (Settings → trash) and wait there for the set number of days (30 by default), after which they are deleted for good when the app opens.", "Tapping an item in the trash selects it; “Restore” and “Delete forever” appear at the bottom. A project is restored with all its items and rates. An expense goes back to its project, or to the open project if its project no longer exists.", "“empty trash” deletes everything for good. Deleting for good always asks once more."], ["Backup", "All apps at zoki02122.github.io share the same data storage: clearing site data in Chrome removes the data of all of them. That is why you should save a backup regularly.", "Settings → backup: “export” downloads one JSON file with all projects (keep it e.g. on Google Drive), and “import” restores it. When the set number of days passes without a backup (7 by default), a red reminder bar appears at the top.", "The trash and the Gemini key are not in the backup."], ["Excel", "Settings → Excel: export the open project to an Excel sheet, or import a sheet into this project or a new one."], ["Other settings", "Basics: project name and language (automatic by phone, Serbian or English); the app and the expense descriptions written by AI are in that language. Theme: five looks, the change shows right away.", "Gemini API key: made for free at aistudio.google.com (Get API key) and stored only on this phone. Without a key, voice, text and photo entry do not work.", "The app version number is at the bottom of Settings."]] };
+const GUIDE = { 'sr-RS': [["Unos troška", "Dodirni polje dole i upiši trošak, ili ga izgovori preko mikrofona na tastaturi, npr. „kafa 300 dinara“ ili „gorivo 6200 i parking 900“. Dok pišeš, polje se raširi do zaglavlja; dodir van polja ili korak nazad ga zatvara.", "Strelica ili taster Enter šalje tekst. AI izdvaja opis, iznos, valutu i kategoriju; više troškova u jednoj rečenici postaju posebne stavke. Datum je današnji, osim kad ga kažeš (npr. „juče“ ili „10. oktobra“).", "Trošak se čuva odmah, a gore piše šta je sačuvano. Tastatura ostaje otvorena za sledeći unos. Ako isti trošak već postoji u projektu, aplikacija prvo pita da li da ga doda ponovo."], ["Slika računa", "Kvadrat „Račun“ u zaglavlju nudi kameru, galeriju ili fajl (slika ili PDF). Izabrana slika se vidi iznad polja za unos; možeš dopisati napomenu i dodirnuti strelicu.", "AI čita stavke i datum sa računa. Kad pojedinačne stavke nisu čitljive, uzima ukupan iznos kao jednu stavku."], ["Ispravka i brisanje", "Dodir na stavku otvara „izmeni stavku“ preko celog ekrana: datum, opis, iznos, valuta, kategorija i napomena. Datum koji ne postoji (npr. 32.10.) se ne čuva: polje pocrveni i gore piše upozorenje. Strelice ↶ ↷ gore vraćaju kucanje reč po reč. „sačuvaj“ čuva izmenu, „otkaži“ ili korak nazad izlazi bez izmene.", "Crvena kanta briše stavku: prvo pita, pa stavka ide u korpu, odakle može da se vrati."], ["Zaglavlje", "Gore je naziv projekta (dodir otvara sve projekte), datum projekta („od 13.09.2026“; dodir otvara „podaci o projektu“, gde se menja) i ⚙ za Podešavanja.", "Ispod su kvadrati: Projekat (nov projekat), Pretraži, Valuta, Sortiraj i Račun. Kartica „ukupno“ pokazuje zbir projekta i broj stavki."], ["Projekti", "Dodir na naziv projekta otvara sve projekte preko celog ekrana; gore je pretraga po nazivu, a dodir na projekat ga otvara. Nov projekat praviš kvadratom „Projekat“.", "Dug pritisak na projekat ga označava i otvara traku izbora sa tri dugmeta: „izmeni“ (naziv i datum projekta, kad je izabran tačno jedan), „izvezi“ (JSON fajl izabranih) i „obriši“ (ide u korpu). ✕ prekida izbor."], ["Valute i kurs", "Svaki projekat ima obračunsku valutu: sve stavke i zbirovi su krupno u njoj, a originalni iznos sitno ispod, kad je u drugoj valuti.", "Prozor „Valuta“ menja obračunsku valutu i za svaku stranu valutu iz stavki ima jedan kurs, za ceo projekat. Kurs se upisuje kao u menjačnici: „1 jača valuta = koliko slabije“.", "Stavka bez kursa ima crveno „nema kurs“, a ispod zbira piše „+ N stavki bez kursa ›“; dodir vodi pravo na upis kursa."], ["Pretraga i sortiranje", "Kvadrat „Pretraži“ otvara polje za reč (npr. „kafa“). Dok pretraga traje, kartica „ukupno“ pokazuje zbir samo pronađenih stavki. ✕ ili brisanje reči vraća ukupno projekta.", "Kvadrat „Sortiraj“ ređa stavke po datumu, po kategoriji ili po nazivu."], ["AI čet", "Dugme sa oblačićem dole levo otvara razgovor sa AI. Pitaj bilo šta o troškovima svih projekata, npr. „koliko sam potrošio na hranu?“.", "AI može da predloži izmenu (dodaj, izmeni ili obriši stavku), ali je ne radi sam: predlog primenjuješ tek kad ga potvrdiš. Obrisano iz četa takođe ide u korpu."], ["Obaveštenja", "Posle svake radnje gore se pojavi obaveštenje. Kvačica znači da je urađeno, a crveni znak „!“ da nešto treba proveriti (npr. nema interneta ili ključa).", "Obaveštenje posle par sekundi samo nestane; dodir ga ne zatvara, pa za to vreme možeš normalno da radiš. Dok stoji, ekran je spušten, ne zaklonjen."], ["Korpa", "Obrisani troškovi i projekti idu u korpu (Podešavanja → korpa) i tamo čekaju zadati broj dana (podrazumevano 30), a zatim se trajno brišu pri otvaranju aplikacije.", "Dodir na stavku u korpi je označava; dole se pojave „Vrati“ i „Obriši trajno“. Projekat se vraća sa svim stavkama i kursevima. Trošak se vraća u svoj projekat, a ako taj projekat više ne postoji, u otvoren projekat.", "„isprazni korpu“ trajno briše sve. Trajno brisanje uvek još jednom pita."], ["Rezervna kopija", "Sve aplikacije na adresi zoki02122.github.io dele isto mesto za podatke: kad se u Chrome-u obrišu podaci sajta, nestaju podaci svih njih. Zato redovno čuvaj rezervnu kopiju.", "Podešavanja → rezervna kopija: „izvezi“ preuzima jedan JSON fajl sa svim projektima (sačuvaj ga npr. na Google Drive), a „uvezi“ ga vraća. Kad prođe zadati broj dana bez kopije (podrazumevano 7), na vrhu se pojavi crvena traka-podsetnik.", "Korpa i Gemini ključ ne idu u rezervnu kopiju."], ["Excel", "Podešavanja → Excel: izvoz otvorenog projekta u Excel tabelu, ili uvoz tabele u ovaj ili u nov projekat. Red sa datumom koji ne postoji ili nije prepoznat dobija današnji datum, a obaveštenje posle uvoza kaže koliko je takvih."], ["Ostala podešavanja", "Podešavanja imaju dve grupe: „ovaj projekat“ (podaci o projektu, Excel, obriši projekat) i „aplikacija · svi projekti“ (sve ostalo). Podaci o projektu: naziv i datum projekta (datum koji ne postoji se ne čuva). Jezik aplikacije: automatski po telefonu, srpski ili engleski; važi za celu aplikaciju i sve projekte, a na tom jeziku su i opisi troškova koje piše AI. Tema: pet izgleda, promena se vidi odmah.", "Gemini API ključ: pravi se besplatno na aistudio.google.com (Get API key) i čuva samo na ovom telefonu. Bez ključa unos glasom, tekstom i slikom ne radi.", "Na dnu Podešavanja piše broj verzije aplikacije."]], 'en-US': [["Adding an expense", "Tap the field at the bottom and type an expense, or dictate it with the keyboard microphone, e.g. “coffee 3 euros” or “fuel 60 and parking 9”. While you type, the field grows up to the header; tapping outside it or going back closes it.", "The arrow or the Enter key sends the text. AI picks out the description, amount, currency and category; several expenses in one sentence become separate items. The date is today, unless you say one (e.g. “yesterday” or “October 10”).", "The expense is saved right away and a notice at the top says what was saved. The keyboard stays open for the next entry. If the same expense already exists in the project, the app first asks whether to add it again."], ["Receipt photo", "The “Receipt” square in the header offers the camera, the gallery or a file (image or PDF). The chosen image is shown above the input field; you can add a note and tap the arrow.", "AI reads the items and the date from the receipt. When single items are not readable, it takes the total as one item."], ["Editing and deleting", "Tapping an item opens “edit item” on the full screen: date, description, amount, currency, category and note. A date that does not exist (e.g. Oct 32) is not saved: the field turns red and a warning appears at the top. The ↶ ↷ arrows at the top undo typing word by word. “save” saves the change, “cancel” or going back leaves without changes.", "The red bin deletes the item: it asks first, then the item goes to the trash, where it can be restored."], ["Header", "At the top are the project name (tap to open all projects), the project date (“since 13.09.2026”; tap to open “project details”, where it is changed) and ⚙ for Settings.", "Below are the squares: Project (new project), Search, Currency, Sort and Receipt. The “total” card shows the project total and the number of items."], ["Projects", "Tapping the project name opens all projects on the full screen; search by name is at the top, and tapping a project opens it. Make a new project with the “Project” square.", "Long-press a project to select it and open the selection bar: “edit” (project name and date, when exactly one is selected), “export” (a JSON file of the selected) and “delete” (goes to the trash). ✕ ends the selection."], ["Currencies and rates", "Every project has an accounting currency: all items and totals are shown large in it, with the original amount small below when it is in another currency.", "The “Currency” window changes the accounting currency and has one rate for each foreign currency in the items, for the whole project. Enter the rate as at an exchange office: “1 stronger currency = how much of the weaker”.", "An item without a rate shows a red “no rate”, and below the total it says “+ N items without rate ›”; tapping it goes straight to entering the rate."], ["Search and sorting", "The “Search” square opens a field for a word (e.g. “coffee”). While searching, the “total” card shows the sum of the found items only. ✕ or clearing the word brings back the project total.", "The “Sort” square orders items by date, by category or by name."], ["AI chat", "The speech-bubble button at the bottom left opens a chat with AI. Ask anything about the expenses of all projects, e.g. “how much did I spend on food?”.", "AI can suggest a change (add, edit or delete an item), but never makes it on its own: a suggestion is applied only when you confirm it. Items deleted from the chat also go to the trash."], ["Notices", "After every action a notice appears at the top. A check mark means it is done, a red “!” that something needs checking (e.g. no internet or no key).", "The notice disappears on its own after a few seconds; tapping does not close it, so you can keep working. While it is shown, the screen moves down instead of being covered."], ["Trash", "Deleted expenses and projects go to the trash (Settings → trash) and wait there for the set number of days (30 by default), after which they are deleted for good when the app opens.", "Tapping an item in the trash selects it; “Restore” and “Delete forever” appear at the bottom. A project is restored with all its items and rates. An expense goes back to its project, or to the open project if its project no longer exists.", "“empty trash” deletes everything for good. Deleting for good always asks once more."], ["Backup", "All apps at zoki02122.github.io share the same data storage: clearing site data in Chrome removes the data of all of them. That is why you should save a backup regularly.", "Settings → backup: “export” downloads one JSON file with all projects (keep it e.g. on Google Drive), and “import” restores it. When the set number of days passes without a backup (7 by default), a red reminder bar appears at the top.", "The trash and the Gemini key are not in the backup."], ["Excel", "Settings → Excel: export the open project to an Excel sheet, or import a sheet into this project or a new one. A row with a date that does not exist or is not recognized gets today’s date, and the notice after the import says how many there were."], ["Other settings", "Settings have two groups: “this project” (project details, Excel, delete project) and “app · all projects” (everything else). Project details: project name and date (a date that does not exist is not saved). App language: automatic by phone, Serbian or English; it applies to the whole app and all projects, and AI writes the expense descriptions in it. Theme: five looks, the change shows right away.", "Gemini API key: made for free at aistudio.google.com (Get API key) and stored only on this phone. Without a key, voice, text and photo entry do not work.", "The app version number is at the bottom of Settings."]] };
 function guideHtml(){
   const secs = GUIDE[resolveAppLanguage()] || GUIDE['sr-RS'];
   return '<div class="settings-hint guide-intro">'+t('guide_intro')+'</div>'+
@@ -2856,9 +2971,17 @@ function openSettingsSub(which){
     body =
       '<div class="settings-card">'+
       '<div class="settings-field"><label>'+t('project_name')+'</label><input type="text" id="renameInput" value="'+escapeHtml(proj.name)+'" maxlength="40" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>'+
-      '<div class="settings-field"><label>'+t('app_language')+'</label><select id="langSelect">'+LANGS.map(l=>'<option value="'+l.code+'" '+(l.code===proj.language?'selected':'')+'>'+l.label+'</option>').join('')+'</select></div>'+
+      '<div class="settings-field"><label>'+t('proj_date')+'</label>'+dateTrioHtml('pd', projDateISO(proj))+'</div>'+
       '</div>'+
       '<div class="modal-actions" style="margin-top:16px;"><button class="cancel-btn" onclick="settingsBack()">'+t('cancel')+'</button><button class="create-btn" onclick="saveProjectSettings()">'+t('save')+'</button></div>';
+  } else if(which==='lang'){
+    title = t('app_language');
+    body =
+      '<div class="settings-card">'+
+      '<div class="settings-field"><label>'+t('app_language')+'</label><select id="langSelect">'+LANGS.map(l=>'<option value="'+l.code+'" '+(l.code===getAppLanguageSetting()?'selected':'')+'>'+l.label+'</option>').join('')+'</select></div>'+
+      '</div>'+
+      '<div class="settings-hint">'+t('lang_hint')+'</div>'+
+      '<div class="modal-actions" style="margin-top:16px;"><button class="cancel-btn" onclick="settingsBack()">'+t('cancel')+'</button><button class="create-btn" onclick="saveProjectLanguage()">'+t('save')+'</button></div>';
   } else if(which==='excel'){
     title = t('tile_excel');
     body =
@@ -2946,9 +3069,17 @@ function confirmClearApiKey(){
 }
 function saveProjectSettings(){
   const name=document.getElementById('renameInput').value.trim();
-  const lang=document.getElementById('langSelect').value;
+  if(!name){ showNote(t('enter_project_name'), {warn:true}); return; }
+  const iso = readDateTrio('pd'); if(!iso) return;
   const proj = currentProject();
-  if(proj){ proj.name=name||proj.name; proj.language=lang; persistProjects(); }
+  if(proj){ proj.name=name; proj.startDate=iso; persistProjects(); }
+  render();
+  settingsBack();
+  showNote(t('note_proj_edited')+' '+name);
+}
+function saveProjectLanguage(){
+  const lang=document.getElementById('langSelect').value;
+  lsSet('troskovi:language', lang);
   render();
   settingsBack();
 }
@@ -3027,26 +3158,6 @@ function openSortWindow(){
 }
 
 /* ---------- MODAL: aktivni datum ---------- */
-function openDateModal(){
-  const proj = currentProject();
-  const parts = proj.activeDate.split('-'); const y=parts[0], m=parts[1], d=parts[2];
-  const backdrop=document.createElement('div'); backdrop.className='modal-backdrop small-modal'; backdrop.id='modalBackdrop';
-  backdrop.innerHTML = '<div class="modal"><button class="modal-close-x" onclick="closeModal()">✕</button><h2>'+t('date_modal_title')+'</h2><div class="date-trio" data-chain>'+
-    '<input class="dd" type="text" inputmode="numeric" id="dtD" value="'+parseInt(d)+'" min="1" max="31" placeholder="DD">'+
-    '<input class="mm" type="text" inputmode="numeric" id="dtM" value="'+parseInt(m)+'" min="1" max="12" placeholder="MM">'+
-    '<input class="yy" type="text" inputmode="numeric" id="dtY" value="'+y+'" min="2000" max="2100" placeholder="GGGG"></div>'+
-    '<div class="modal-actions" style="margin-top:16px;"><button class="cancel-btn" onclick="closeModal()">'+t('cancel')+'</button><button class="create-btn" onclick="saveDateModal()">'+t('save')+'</button></div></div>';
-  appendModalBackdrop(backdrop, closeModal);
-  backdrop.addEventListener('click',(e)=>{ if(e.target===backdrop) closeModal(); });
-}
-function saveDateModal(){
-  const d=parseInt(document.getElementById('dtD').value)||1;
-  const m=parseInt(document.getElementById('dtM').value)||1;
-  const y=parseInt(document.getElementById('dtY').value)||new Date().getFullYear();
-  closeModal(); setActiveDate(isoFromParts(d,m,y));
-}
-
-/* ---------- MODAL: edit entry ---------- */
 function openEditEntry(id){
   const e = entries.find(x=>x.id===id); if(!e) return;
   const parts = e.datum.split('-'); const y=parts[0], m=parts[1], d=parts[2];
@@ -3074,16 +3185,14 @@ function openEditEntry(id){
   edInit();
 }
 function saveEntryFromModal(id){
-  const d=parseInt(document.getElementById('eD').value)||1;
-  const m=parseInt(document.getElementById('eM').value)||1;
-  const y=parseInt(document.getElementById('eY').value)||new Date().getFullYear();
+  const iso = readDateTrio('e'); if(!iso) return;
   const opis=document.getElementById('editOpis').value.trim();
   const iznos=parseNum(document.getElementById('editIznos').value)||0;
   const valuta=document.getElementById('editValuta').value.trim().toUpperCase();
   const kategorija=document.getElementById('editKategorija').value.trim()||'ostalo';
   const napomena=document.getElementById('editNapomena').value.trim();
   closeModal();
-  updateEntry(id, {datum: isoFromParts(d,m,y), opis, iznos, valuta, kategorija, napomena});
+  updateEntry(id, {datum: iso, opis, iznos, valuta, kategorija, napomena});
   showNote(t('note_edited')+' '+opis, { ms:5000 });
 }
 function deleteEntryFromModal(id){
@@ -3113,7 +3222,7 @@ function handleExcelImportFile(inputEl){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = function(ev){
-    let items = [];
+    let items = []; let badDates = 0;
     try{
       const data = new Uint8Array(ev.target.result);
       const wb = XLSX.read(data, { type:'array' });
@@ -3141,7 +3250,9 @@ function handleExcelImportFile(inputEl){
         const iznos = (typeof iznosRaw === 'number') ? iznosRaw : parseFloat(String(iznosRaw).replace(/\./g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
         if(!opis || isNaN(iznos)) continue;
         const datumRaw = idx.datum>=0 ? String(r[idx.datum]||'') : '';
-        const datum = parseDdMmYyyy(datumRaw) || todayISO();
+        const datumOk = validIsoOrNull(parseDdMmYyyy(datumRaw));
+        if(datumRaw.trim() && !datumOk) badDates++;
+        const datum = datumOk || todayISO();
         const valuta = idx.valuta>=0 ? normCur(r[idx.valuta]) : (displayCurrency()||'RSD');
         const kategorija = idx.kategorija>=0 ? String(r[idx.kategorija]||'').trim() : '';
         const napomena = idx.napomena>=0 ? String(r[idx.napomena]||'').trim() : '';
@@ -3153,6 +3264,7 @@ function handleExcelImportFile(inputEl){
     }
     inputEl.value='';
     if(items.length===0){ showBanner(t('excel_import_no_items'), 'error'); return; }
+    pendingExcelBadDates = badDates;
     openExcelImportChoice(items, file.name);
   };
   reader.onerror = function(){
@@ -3160,6 +3272,13 @@ function handleExcelImportFile(inputEl){
     inputEl.value='';
   };
   reader.readAsArrayBuffer(file);
+}
+let pendingExcelBadDates = 0;
+/* posle uvoza: koliko stavki je imalo neispravan datum (dobile su današnji) */
+function excelImportNote(n){
+  if(pendingExcelBadDates>0) showNote(n+' '+t('excel_import_done')+' '+t('excel_bad_dates').replace('{n}', pendingExcelBadDates), {warn:true, ms:8000});
+  else showBanner(n+' '+t('excel_import_done'), 'info');
+  pendingExcelBadDates = 0;
 }
 function openExcelImportChoice(items, sourceName){
   pendingExcelImportItems = items;
@@ -3179,7 +3298,7 @@ function importExcelIntoCurrent(){
   closeModal();
   if(!items) return;
   commitEntries(items);
-  showBanner(items.length+' '+t('excel_import_done'), 'info');
+  excelImportNote(items.length);
   pendingExcelImportItems = null;
 }
 function importExcelAsNewProject(){
@@ -3190,7 +3309,7 @@ function importExcelAsNewProject(){
   const name = (sourceName||'').replace(/\.xlsx$/i,'').replace(/[_]+/g,' ').trim() || t('excel_import_new_project_name');
   createProject(name, 'auto');
   commitEntries(items);
-  showBanner(items.length+' '+t('excel_import_done'), 'info');
+  excelImportNote(items.length);
   pendingExcelImportItems = null;
 }
 function exportXlsx(){
