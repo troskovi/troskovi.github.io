@@ -1274,18 +1274,31 @@ function selectableField(el){
   return el.tagName==='TEXTAREA' || TEXT_TYPES.indexOf((el.getAttribute('type')||'').toLowerCase())>=0;
 }
 let _focusNoSelect = null;   /* fokus koji daje ↶ ↷ ne označava tekst */
+/* v24: oznaka „netaknuto“ OD DODIRA, po uzoru na Apoteku v47 (probano na Zoranovom telefonu 14.10.).
+   Ranije (v6) se odlučivalo po trenutnom označavanju (selectionStart/End), a Gboard pomeri označavanje PRE brisanja,
+   pa je kod skidao oznaku i puštao brisanje (Zoran 14.10.: „prvi korak unazad obriše polje i pređe na prethodno“).
+   - dodir/fokus: ceo tekst označen, polje netaknuto, pamti se vrednost (fieldOriginal);
+   - u nizu [data-chain], dok je netaknuto ili prazno: obriši NE briše nego skače na prethodno polje; ako Gboard ipak obriše
+     (brisanje koje se ne može zaustaviti), vrednost se vrati cela i skoči nazad;
+   - polje bez prethodnog: netaknuto + obriši briše ceo tekst (kao v6), uz Gboard zaštitu (skinut samo kraj → prazno);
+   - kucanje zamenjuje tekst i skida oznaku; DRUGI dodir na polje koje je već aktivno skida oznaku → brisanje slovo po slovo.
+   Namerno bez 'focusout': skok nazad skida fokus PRE Gboard-ovog brisanja, a vraćanje teksta tada mora i dalje da radi. */
+let _bsWasFocused = false, _bsRestoring = false;
 document.addEventListener('focusin', (e)=>{
   const el = e.target;
   if(!selectableField(el)) return;
-  if(_focusNoSelect===el){ _focusNoSelect = null; return; }
+  if(_focusNoSelect===el){ _focusNoSelect = null; pristineArmed.delete(el); return; }
   fieldOriginal.set(el, el.value);
   pristineArmed.add(el);
-  setTimeout(()=>{ try{ if(document.activeElement===el){ el.select(); pristineArmed.add(el); } }catch(x){} }, 0);
+  setTimeout(()=>{ try{ if(document.activeElement===el) el.select(); }catch(x){} }, 0);
 });
-document.addEventListener('focusout', (e)=>{ pristineArmed.delete(e.target); });
+document.addEventListener('pointerdown', (e)=>{ _bsWasFocused = selectableField(e.target) && document.activeElement===e.target; }, true);
+document.addEventListener('click', (e)=>{
+  if(_bsWasFocused && e.target===document.activeElement) pristineArmed.delete(e.target);
+  _bsWasFocused = false;
+}, true);
 /* v6: „obriši“ po uzoru na Stanje guma — u nizu polja ([data-chain]) obriši na osenčenom ili praznom polju
-   NE briše, nego vraća na prethodno polje (tekst ostaje). Drugi dodir (kursor) = slovo po slovo.
-   Polje bez prethodnog (npr. kurs): osenčeno + obriši briše ceo tekst, uz Gboard zaštitu. */
+   NE briše, nego vraća na prethodno polje (tekst ostaje). Drugi dodir (kursor) = slovo po slovo. */
 function prevField(el){
   const box = el.closest ? el.closest('[data-chain]') : null;
   if(!box) return null;
@@ -1293,45 +1306,42 @@ function prevField(el){
   const i = list.indexOf(el);
   return i>0 ? list[i-1] : null;
 }
-function wholeSelected(el){
-  try{ return el.value.length>0 && el.selectionStart===0 && el.selectionEnd===el.value.length; }catch(x){ return false; }
-}
 function backToPrev(el){
   const p = prevField(el);
   if(!p) return false;
-  if(el.value==='') return (p.focus(), true);
-  if(pristineArmed.has(el) && wholeSelected(el)) return (p.focus(), true);
+  if(el.value==='' || pristineArmed.has(el)){ if(document.activeElement!==p) p.focus(); return true; }
   return false;
 }
+function isDeleteType(t){ return typeof t==='string' && t.indexOf('delete')===0; }
 document.addEventListener('keydown', (e)=>{
   if(e.key!=='Backspace' || !selectableField(e.target)) return;
   if(backToPrev(e.target)) e.preventDefault();
 }, true);
 document.addEventListener('beforeinput', (e)=>{
   const el = e.target;
-  if(!selectableField(el)) return;
-  if(e.inputType==='deleteContentBackward' && backToPrev(el)){ e.preventDefault(); return; }
-  if(pristineArmed.has(el) && !wholeSelected(el)) pristineArmed.delete(el);
+  if(!selectableField(el) || !isDeleteType(e.inputType)) return;
+  if(backToPrev(el)) e.preventDefault();
 }, true);
 document.addEventListener('input', (e)=>{
   const el = e.target;
-  if(!pristineArmed.has(el)) return;
-  pristineArmed.delete(el);
-  if(!e.inputType || e.inputType.indexOf('delete')!==0) return;
+  if(_bsRestoring || !selectableField(el) || !pristineArmed.has(el)) return;
+  if(!isDeleteType(e.inputType)){ pristineArmed.delete(el); return; }
   const original = fieldOriginal.get(el);
-  if(typeof original!=='string') return;
   const p = prevField(el);
   if(p){
-    /* Gboard je ipak obrisao (nije poslao beforeinput koji može da se zaustavi): vrati tekst i idi nazad */
-    el.value = original;
-    el.dispatchEvent(new Event('input', { bubbles:true }));
-    p.focus();
+    /* Gboard je ipak obrisao (brisanje koje se ne može zaustaviti): vrati tekst i idi nazad; oznaka ostaje */
+    if(typeof original==='string' && el.value!==original){
+      el.value = original;
+      _bsRestoring = true; el.dispatchEvent(new Event('input', { bubbles:true })); _bsRestoring = false;
+    }
+    if(document.activeElement!==p) p.focus();
     return;
   }
-  /* Gboard ponekad na „obriši“ skine samo kraj označenog teksta: polje se isprazni kako je korisnik hteo */
-  if(el.value!=='' && el.value.length<original.length && original.indexOf(el.value)===0){
+  pristineArmed.delete(el);
+  /* polje bez prethodnog: Gboard ponekad na „obriši“ skine samo kraj označenog teksta — polje se isprazni kako je korisnik hteo */
+  if(typeof original==='string' && el.value!=='' && el.value.length<original.length && original.indexOf(el.value)===0){
     el.value = '';
-    el.dispatchEvent(new Event('input', { bubbles:true }));
+    _bsRestoring = true; el.dispatchEvent(new Event('input', { bubbles:true })); _bsRestoring = false;
   }
 }, true);
 /* ---------- v5: ↶ ↷ u prozoru „izmeni stavku“ — kucanje reč po reč (razmak ili pauza 0,7 s = korak) ---------- */
@@ -1472,7 +1482,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 23; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 24; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
