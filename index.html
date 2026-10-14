@@ -880,6 +880,8 @@ const I18N = {
     default_project_name: 'novi projekat',
     server_timeout: 'server nije odgovorio na vreme (20 sekundi). proveri internet i probaj ponovo.',
     cannot_connect_ai: 'ne mogu da se povežem sa AI servisom:',
+    gemini_busy: 'Google AI je trenutno preopterećen. Aplikacija je pokušala 4 puta, i sa rezervnim modelom. Probaj ponovo za par minuta.',
+    gemini_rate_limited: 'Google AI je trenutno odbio zahtev zbog ograničenja broja zahteva na tvom nalogu. Sačekaj malo pa probaj ponovo.',
     attach_photo: 'dodaj fotografiju računa',
     attach_camera: 'kamera',
     attach_gallery: 'galerija',
@@ -1045,6 +1047,8 @@ const I18N = {
     default_project_name: 'new project',
     server_timeout: 'the server didn\'t respond in time (20 seconds). check your internet and try again.',
     cannot_connect_ai: 'could not connect to the AI service:',
+    gemini_busy: 'Google AI is overloaded right now. The app tried 4 times, including a backup model. Try again in a few minutes.',
+    gemini_rate_limited: 'Google AI refused the request because of your account\'s request limit. Wait a little and try again.',
     attach_photo: 'add receipt photo',
     attach_camera: 'camera',
     attach_gallery: 'gallery',
@@ -1468,7 +1472,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ lsSet('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ lsSet('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 22; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 23; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -1814,6 +1818,47 @@ function deleteEntry(id){
 }
 
 /* ---------- AI PARSING ---------- */
+/* v23: modeli i ponavljanje po uzoru na Apoteku v45 (zvanično 14.10.2026, ai.google.dev models/deprecations/troubleshooting):
+   gemini-3.5-flash je povučen (preusmerava se na 3.6), modeli 3.6+ ne primaju temperature/top_p/top_k → ne šalju se.
+   Ponavljaju se samo 408, 429 i 5xx, sa rastućim čekanjem: glavni → ~1 s glavni → ~2 s rezervni → ~4 s rezervni.
+   Ostali odgovori (i 400 zbog šeme) vraćaju se pozivaocu odmah. */
+const GEMINI_MODEL = 'gemini-3.5-flash-lite';          // izvlačenje troškova (tekst, glas, slika računa)
+const GEMINI_MODEL_BACKUP = 'gemini-3.6-flash';
+const GEMINI_MODEL_CHAT = 'gemini-3.6-flash';          // AI čet
+const GEMINI_MODEL_CHAT_BACKUP = 'gemini-3.5-flash-lite';
+const GEMINI_RETRY_STATUS = [408,429,500,502,503,504];
+function geminiPause(ms){ return new Promise(r=>setTimeout(r, ms + Math.floor(Math.random()*400))); }
+async function geminiFetch(models, body, timeoutMs, timeoutText){
+  const apiKey = getApiKey();
+  const plan = [[models[0],0],[models[0],1000],[models[1],2000],[models[1],4000]];
+  let lastStatus = 0;
+  for(let i=0; i<plan.length; i++){
+    const model = plan[i][0];
+    if(!model) continue;
+    if(plan[i][1]) await geminiPause(plan[i][1]);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=>controller.abort(), timeoutMs);
+    let resp;
+    try{
+      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'x-goog-api-key':apiKey },
+        body: JSON.stringify(body),
+        signal: controller.signal
+      });
+    } catch(fetchErr){
+      if(fetchErr.name==='AbortError') throw new Error(timeoutText);
+      throw new Error(t('cannot_connect_ai')+' '+(fetchErr.message || fetchErr));
+    } finally {
+      clearTimeout(timeoutId);
+    }
+    if(GEMINI_RETRY_STATUS.indexOf(resp.status) < 0) return resp;
+    lastStatus = resp.status;
+    await resp.text().catch(()=> '');
+  }
+  throw new Error(lastStatus===429 ? t('gemini_rate_limited') : t('gemini_busy'));
+}
+
 async function callGeminiForExpenses(contentPart, isAudio, isImage){
   const proj = currentProject();
   const guessCur = entries.length>0 ? entries[entries.length-1].valuta : (displayCurrency() || 'RSD');
@@ -1858,27 +1903,11 @@ async function callGeminiForExpenses(contentPart, isAudio, isImage){
   let resp, usedMode = '';
   const __t0 = performance.now();
   for(let i=0; i<attempts.length; i++){
-    const controller = new AbortController();
-    const timeoutId = setTimeout(()=>controller.abort(), 20000);
-    try{
-      resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key="+encodeURIComponent(apiKey), {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: sys }] },
-          contents: [{ role:"user", parts: parts }],
-          generationConfig: attempts[i].gc
-        }),
-        signal: controller.signal
-      });
-    } catch(fetchErr){
-      if(fetchErr.name === 'AbortError'){
-        throw new Error(t('server_timeout'));
-      }
-      throw new Error(t('cannot_connect_ai') + ' ' + (fetchErr.message || fetchErr));
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    resp = await geminiFetch([GEMINI_MODEL, GEMINI_MODEL_BACKUP], {
+      systemInstruction: { parts: [{ text: sys }] },
+      contents: [{ role:"user", parts: parts }],
+      generationConfig: attempts[i].gc
+    }, 20000, t('server_timeout'));
     if(resp.ok){ usedMode = attempts[i].mode; break; }
     const errBody = await resp.text();
     if(resp.status === 400 && i < attempts.length-1){
@@ -2254,26 +2283,11 @@ Pravila za JSON u AKCIJA bloku (mora biti validan JSON niz, čak i za jednu stav
 
   const history = (chatHistory||[]).map(m=>({ role: m.role==='user'?'user':'model', parts:[{text:m.text}] }));
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(()=>controller.abort(), 25000);
-  let resp;
-  try{
-    resp = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key="+encodeURIComponent(apiKey), {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: sys }] },
-        contents: [...history, { role:"user", parts:[{ text: question }] }],
-        generationConfig: { maxOutputTokens: 2000, temperature: 0 }
-      }),
-      signal: controller.signal
-    });
-  } catch(e){
-    clearTimeout(timeoutId);
-    if(e.name==='AbortError') throw new Error('AI ne odgovara (isteklo vreme). pokušaj ponovo.');
-    throw new Error('Ne mogu da se povežem sa AI servisom: '+e.message);
-  }
-  clearTimeout(timeoutId);
+  const resp = await geminiFetch([GEMINI_MODEL_CHAT, GEMINI_MODEL_CHAT_BACKUP], {
+    systemInstruction: { parts: [{ text: sys }] },
+    contents: [...history, { role:"user", parts:[{ text: question }] }],
+    generationConfig: { maxOutputTokens: 2000 }
+  }, 25000, 'AI ne odgovara (isteklo vreme). pokušaj ponovo.');
   if(!resp.ok){
     const errText = await resp.text().catch(()=> '');
     throw new Error('AI servis je vratio grešku ('+resp.status+'). '+errText.slice(0,150));
