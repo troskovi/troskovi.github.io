@@ -867,7 +867,7 @@ const I18N = {
     excel_import_as_new: 'novi projekat',
     excel_import_done: 'stavki uvezeno.',
     excel_import_new_project_name: 'uvezen projekat',
-    backup_export: 'rezervna kopija - izvezi (svi projekti)', backup_share: 'podeli kopiju (Google Drive, mejl…)', backup_share_title: 'Troškovi - rezervna kopija', backup_shared: 'rezervna kopija je podeljena.', share_failed: 'deljenje nije uspelo:', save_failed: 'NIJE SAČUVANO! Memorija telefona je puna ili nedostupna. Odmah napravi rezervnu kopiju i oslobodi prostor.', persist_ok: 'Chrome čuva podatke ove aplikacije trajno (ne briše ih sam kad ponestane mesta).', persist_no: 'Chrome nije odobrio trajno čuvanje — redovno pravi rezervnu kopiju.',
+    backup_export: 'rezervna kopija - izvezi (svi projekti)', backup_share: 'podeli kopiju (Google Drive, mejl…)', backup_shared: 'rezervna kopija je podeljena.', share_failed: 'deljenje nije uspelo:', save_failed: 'NIJE SAČUVANO! Memorija telefona je puna ili nedostupna. Odmah napravi rezervnu kopiju i oslobodi prostor.', persist_ok: 'Chrome čuva podatke ove aplikacije trajno (ne briše ih sam kad ponestane mesta).', persist_no: 'Chrome nije odobrio trajno čuvanje — redovno pravi rezervnu kopiju.',
     backup_import: 'rezervna kopija - uvezi',
     backup_hint: 'rezervna kopija čuva sve projekte odjednom - sačuvaj je povremeno (npr. u Google Drive) da ne izgubiš podatke.',
     backup_interval_label: 'podseti me na svakih (dana)',
@@ -1033,7 +1033,7 @@ const I18N = {
     excel_import_as_new: 'new project',
     excel_import_done: 'items imported.',
     excel_import_new_project_name: 'imported project',
-    backup_export: 'backup - export (all projects)', backup_share: 'share backup (Google Drive, email…)', backup_share_title: 'Expenses - backup', backup_shared: 'backup shared.', share_failed: 'sharing failed:', save_failed: 'NOT SAVED! Phone storage is full or unavailable. Make a backup right away and free up space.', persist_ok: 'Chrome keeps this app’s data permanently (it won’t clear it on its own when space runs low).', persist_no: 'Chrome did not grant permanent storage — make backups regularly.',
+    backup_export: 'backup - export (all projects)', backup_share: 'share backup (Google Drive, email…)', backup_shared: 'backup shared.', share_failed: 'sharing failed:', save_failed: 'NOT SAVED! Phone storage is full or unavailable. Make a backup right away and free up space.', persist_ok: 'Chrome keeps this app’s data permanently (it won’t clear it on its own when space runs low).', persist_no: 'Chrome did not grant permanent storage — make backups regularly.',
     backup_import: 'backup - import',
     backup_hint: 'the backup saves all projects at once - save it occasionally (e.g. to Google Drive) so you don\'t lose your data.',
     backup_interval_label: 'remind me every (days)',
@@ -1592,7 +1592,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ persistChecked('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ persistChecked('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 36; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 37; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -2820,17 +2820,24 @@ function buildBackup(){
    Chrome deli samo dozvoljene tipove (izvorni kod Chromium-a, chrome/browser/webshare/share_service_impl.cc: .json NIJE na
    spisku, .txt / text/plain jeste) → isti JSON sadržaj u fajlu .txt; uvoz čita sadržaj, ne gleda nastavak. Poziv mora biti
    odmah u dodiru (transient user activation) — ništa asinhrono pre navigator.share. Kopija se beleži tek kad deljenje uspe. */
-function backupShareFile(){
-  return new File([JSON.stringify(buildBackup(), null, 2)], 'troskovi-kopija-'+todayISO()+'.txt', {type:'text/plain'});
+/* v37 (Zoranov snimak Drive-a 15.10.): Drive za ime fajla uzima NASLOV deljenja, a ne ime fajla → sve kopije su se zvale
+   „Troškovi - rezervna kopija“. Sada su naslov i ime fajla isti, sa datumom i vremenom (dve kopije istog dana = dva imena),
+   a po imenu se ređaju od najstarije do najnovije. */
+function backupShareName(){
+  const d = new Date(), p = n=>String(n).padStart(2,'0');
+  return 'troskovi-kopija-'+todayISO()+'-'+p(d.getHours())+'.'+p(d.getMinutes())+'.txt';
+}
+function backupShareFile(name){
+  return new File([JSON.stringify(buildBackup(), null, 2)], name || backupShareName(), {type:'text/plain'});
 }
 function canShareBackup(){
   try{ return !!(navigator.canShare && navigator.share && navigator.canShare({ files:[ new File(['{}'], 'proba.txt', {type:'text/plain'}) ] })); }
   catch(e){ return false; }
 }
 function shareBackup(){
-  let file;
-  try{ file = backupShareFile(); }catch(e){ showBanner(t('share_failed')+' '+(e && e.message ? e.message : e)); return; }
-  navigator.share({ files:[file], title: t('backup_share_title') }).then(()=>{
+  let file; const name = backupShareName();
+  try{ file = backupShareFile(name); }catch(e){ showBanner(t('share_failed')+' '+(e && e.message ? e.message : e)); return; }
+  navigator.share({ files:[file], title: name }).then(()=>{
     markBackupDone(); render();
     const hintEl = document.getElementById('lastBackupHint');
     if(hintEl) hintEl.textContent = t('last_backup_label')+': '+lastBackupDisplay();
