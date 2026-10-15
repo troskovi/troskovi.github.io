@@ -792,7 +792,6 @@ const I18N = {
     search_placeholder: 'pretraži po opisu, kategoriji, napomeni...',
     date: 'datum',
     category: 'kategorija',
-    items_short: 'st.',
     manual_input_placeholder: 'ukucaj ili koristi mikrofon na tastaturi...',
     section_basic: 'podaci o projektu',
     project_name: 'naziv projekta',
@@ -959,7 +958,6 @@ const I18N = {
     search_placeholder: 'search by description, category, note...',
     date: 'date',
     category: 'category',
-    items_short: 'items',
     manual_input_placeholder: 'type or use the keyboard microphone...',
     section_basic: 'project details',
     project_name: 'project name',
@@ -2253,7 +2251,7 @@ function render(){
     '<button class="hd-ico" onclick="openAttachMenu()"><span class="icon-btn hd-sq">'+ic('📷','camera')+'</span><span class="hd-tx">'+t('hd_receipt')+'</span></button>'+
     '</div>')+
     '<div class="tb-row" style="margin-top:6px;">'+
-    (groupKeys.length>0 ? ('<div class="tr2-total'+(searchActive?' is-search':'')+'"><span class="tr2-left"><span class="tr2-proj">'+(searchActive ? escapeHtml(t('found_label')+': '+searchQuery.trim()) : t('total'))+'</span><span class="tr2-label">'+(searchActive?foundCount:entries.length)+' '+t('items_short')+'</span></span><span class="tr2-val num">'+amtHtml(fmtAmt(searchActive?foundTotal:grandTotal), (dispCur||'').toLowerCase())+'</span>'+missingPill(searchActive?foundMissing:grandMissing)+'</div>') : '')+
+    (groupKeys.length>0 ? ('<div class="tr2-total'+(searchActive?' is-search':'')+'"><span class="tr2-left"><span class="tr2-proj">'+(searchActive ? escapeHtml(t('found_label')+': '+searchQuery.trim()) : t('total'))+'</span><span class="tr2-label">'+(searchActive?foundCount:entries.length)+' '+itemsWord(searchActive?foundCount:entries.length)+'</span></span><span class="tr2-val num">'+amtHtml(fmtAmt(searchActive?foundTotal:grandTotal), (dispCur||'').toLowerCase())+'</span>'+missingPill(searchActive?foundMissing:grandMissing)+'</div>') : '')+
     '</div>'+
     '</div>'+
     '<div class="list-area">'+listHtml+
