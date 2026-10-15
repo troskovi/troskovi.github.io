@@ -688,6 +688,13 @@ html[data-theme] .entries-table tr.nr-row td, html[data-theme] .entries-table tr
 
 /* v29: poslednji upisan kurs (iz bilo kog projekta) samo kao predlog — pilula u stilu zlatnog boda */
 .modal .rate-last{ display:inline-flex; align-items:center; margin:2px 0 12px; padding:7px 13px; border-radius:20px; border:1.5px dashed var(--nr-b); background:var(--nr-bg); color:var(--nr-c); font-size:14px; font-weight:600; font-family:var(--font-ui); cursor:pointer; }
+
+/* v30 (Zoran 15.10.): Klasična — kartica ukupno kao u ostalim temama: levo „UKUPNO“ i broj stavki ispod, iznos desno u istom redu */
+[data-theme="klasicna"] .tr2-total{ display:flex; align-items:center; gap:10px; text-align:left; padding:8px 14px; }
+[data-theme="klasicna"] .tr2-total .tr2-left{ display:block; min-width:0; }
+[data-theme="klasicna"] .tr2-total .tr2-proj{ display:block; position:relative; font-size:11px; font-weight:800; color:var(--total-val); text-transform:uppercase; letter-spacing:0.4px; }
+[data-theme="klasicna"] .tr2-total .tr2-label{ font-size:9.5px; margin-top:1px; }
+[data-theme="klasicna"] .tr2-total .tr2-val{ margin-left:auto; text-align:right; font-size:18px; }
 </style>
 </head>
 <body>
