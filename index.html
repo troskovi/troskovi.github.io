@@ -981,7 +981,7 @@ const I18N = {
     guide_tile: 'uputstvo', guide_sub: 'kako se koristi aplikacija', guide_intro: 'dodirni naslov da pročitaš objašnjenje.',
     settings_title: 'podešavanja', grp_project: 'ovaj projekat', grp_app: 'aplikacija · svi projekti',
     excel_bad_dates: 'Stavke sa neispravnim datumom ({n}) dobile su današnji datum.',
-    hd_since: 'od', date_invalid: 'Taj datum ne postoji:', proj_date: 'datum projekta', note_proj_edited: 'Izmenjeno:',
+    hd_since: 'od', date_invalid: 'Uneti datum ne postoji', proj_date: 'datum projekta', note_proj_edited: 'Izmenjeno:',
     lang_hint: 'jezik važi za celu aplikaciju i sve projekte; na njemu su i opisi troškova koje piše AI. „automatski“ uzima jezik telefona.',
     tr_tile: 'korpa', tr_empty_sub: 'prazna', tr_in: 'u korpi', tr_keeps: 'čuva', tr_days: 'dana', tr_day: 'dan',
     tr_days_label: 'čuvaj obrisano (dana)', tr_hint: 'obrisani troškovi i projekti čekaju ovde. kad prođe ovoliko dana, trajno se brišu pri otvaranju aplikacije. korpa se ne čuva u bekapu.',
@@ -1147,7 +1147,7 @@ const I18N = {
     guide_tile: 'user guide', guide_sub: 'how to use the app', guide_intro: 'tap a title to read the explanation.',
     settings_title: 'settings', grp_project: 'this project', grp_app: 'app · all projects',
     excel_bad_dates: 'Items with an invalid date ({n}) got today’s date.',
-    hd_since: 'since', date_invalid: 'That date does not exist:', proj_date: 'project date', note_proj_edited: 'Edited:',
+    hd_since: 'since', date_invalid: 'The entered date does not exist', proj_date: 'project date', note_proj_edited: 'Edited:',
     lang_hint: 'the language applies to the whole app and all projects; AI also writes the expense descriptions in it. “automatic” uses the phone language.',
     tr_tile: 'trash', tr_empty_sub: 'empty', tr_in: 'in trash', tr_keeps: 'keeps', tr_days: 'days', tr_day: 'day',
     tr_days_label: 'keep deleted (days)', tr_hint: 'deleted expenses and projects wait here. after this many days they are deleted for good when the app opens. the trash is not in the backup.',
@@ -1204,7 +1204,7 @@ function readDateTrio(pref){
   const bad = badDatePart(d,m,y);
   if(bad){
     (bad==='d'?fD:(bad==='m'?fM:fY)).classList.add('bad');
-    showNote(t('date_invalid')+' '+(fD.value||'?')+'.'+(fM.value||'?')+'.'+(fY.value||'?'), {warn:true});
+    showNote(t('date_invalid'), {warn:true}); /* v38: Zoran — samo „Uneti datum ne postoji“; pogrešno polje je crveno */
     return null;
   }
   return isoFromParts(d,m,y);
@@ -1592,7 +1592,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ persistChecked('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ persistChecked('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 37; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 38; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -1916,11 +1916,11 @@ function deleteProject(pid){
 /* ---------- ENTRY ACTIONS ---------- */
 
 
-/* v36 (4): naslov grupe po datumu sa danom u nedelji: „pon 12.10.“ */
+/* v36 (4), v38: naslov grupe po datumu sa danom u nedelji, cela reč: „ponedeljak 12.10.“ */
 function dayLabel(iso){
   const [y,m,d] = iso.split('-').map(Number);
   const wd = new Date(y, m-1, d).getDay();
-  const names = resolveAppLanguage()==='sr-RS' ? ['ned','pon','uto','sre','čet','pet','sub'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const names = resolveAppLanguage()==='sr-RS' ? ['nedelja','ponedeljak','utorak','sreda','četvrtak','petak','subota'] : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   return names[wd]+' '+dmFromISO(iso)+'.';
 }
 /* v36 (5): nova stavka kratko zasija (zlatno, boja teme) i spisak se pomeri do nje — vidi se šta je AI upisao */
