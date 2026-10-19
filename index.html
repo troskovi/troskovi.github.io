@@ -213,6 +213,17 @@
   .settings-section{ margin-bottom:20px; }
   .settings-section-label{ font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; padding:0 4px 7px; }
   .settings-card{ background:var(--bg-card); border-radius:13px; border:1px solid var(--line); overflow:hidden; }
+  /* MODUL ai-dnevnik v1 (css; --ink → --text, --ink-dim → --text-dim, --danger → --coral) */
+  .ai-set-lbl{ font-size:12px; color:var(--text-dim); margin:18px 4px 8px; text-transform:lowercase; }
+  .ai-use-row{ display:flex; justify-content:space-between; gap:10px; padding:12px 14px; border-bottom:1px solid var(--line); font-size:13px; color:var(--text); }
+  .ai-use-row:last-child{ border-bottom:none; }
+  .ai-use-row span{ color:var(--text-dim); flex:none; }
+  .ai-use-row b{ font-weight:600; text-align:right; overflow-wrap:anywhere; }
+  .ai-last{ padding:10px 14px; border-bottom:1px solid var(--line); font-size:12.5px; line-height:1.45; color:var(--text); }
+  .ai-last.ai-fail, .ai-last .ai-fail-tx{ color:var(--coral); }
+  .ai-last:last-child{ border-bottom:none; }
+  .ai-last small{ display:block; color:var(--text-dim); }
+  .ai-opt .t-name small{ display:block; font-size:12px; font-weight:500; color:var(--text-dim); margin-top:2px; }
   .settings-field{ padding:12px 14px; border-bottom:1px solid var(--line); }
   .settings-field:last-child{ border-bottom:none; }
   .settings-field label{ font-size:11.5px; color:var(--text-dim); display:block; margin-bottom:5px; }
@@ -899,9 +910,16 @@ const I18N = {
     tile_backup: 'rezervna kopija',
     tile_theme: 'tema',
     theme_hint: 'promena se vidi odmah. izbor se pamti i čuva u rezervnoj kopiji.',
-    tile_gemini_key: 'Gemini API ključ',
     key_status_set: 'ključ je unet',
     key_status_missing: 'ključ nije unet',
+    tile_ai: 'AI obrada', ai_lbl_key: 'ključ', ai_lbl_model: 'model',
+    ai_model_lite: 'najjeftiniji i brz', ai_model_flash: 'jači i skuplji',
+    ai_model_hint: 'izabrani model radi sve AI poslove (unos, račun, čet); ako ne odgovori na vreme, odmah uskače drugi.',
+    aidn_cost: 'trošak', aidn_month: 'ovaj mesec', aidn_total: 'ukupno', aidn_last: 'poslednje obrade', aidn_jobs: 'obrada', aidn_tokens: 'tokena',
+    aidn_in: 'ulaz', aidn_out: 'izlaz', aidn_time: 'vreme', aidn_parts: 'delova', aidn_tries: 'pokušaja', aidn_att: 'pokušaji',
+    aidn_noresp: 'bez odgovora', aidn_ok: 'uspeh', aidn_after: 'posle', aidn_empty: 'još nema obrada.',
+    aidn_hint: 'na besplatnom nivou obrada ništa ne košta. iznos pokazuje koliko bi koštalo na plaćenom nivou, po Google-ovim cenama (izlaz uključuje i „razmišljanje“ modela).',
+    aidn_job_input: 'Unos', aidn_job_photo: 'Račun (slika)', aidn_job_chat: 'Čet',
     tile_delete_sub: 'premešta projekat i sve stavke u korpu',
     new_project_placeholder: 'npr. renoviranje kupatila',
     create: 'napravi',
@@ -1065,9 +1083,16 @@ const I18N = {
     tile_backup: 'backup',
     tile_theme: 'theme',
     theme_hint: 'the change applies immediately. your choice is remembered and saved in the backup.',
-    tile_gemini_key: 'Gemini API key',
     key_status_set: 'key is saved',
     key_status_missing: 'key is not set',
+    tile_ai: 'AI processing', ai_lbl_key: 'key', ai_lbl_model: 'model',
+    ai_model_lite: 'cheapest and fast', ai_model_flash: 'stronger and more expensive',
+    ai_model_hint: 'the chosen model does all AI work (entry, receipt, chat); if it does not answer in time, the other one steps in right away.',
+    aidn_cost: 'cost', aidn_month: 'this month', aidn_total: 'total', aidn_last: 'recent jobs', aidn_jobs: 'jobs', aidn_tokens: 'tokens',
+    aidn_in: 'input', aidn_out: 'output', aidn_time: 'time', aidn_parts: 'parts', aidn_tries: 'tries', aidn_att: 'attempts',
+    aidn_noresp: 'no answer', aidn_ok: 'success', aidn_after: 'after', aidn_empty: 'no jobs yet.',
+    aidn_hint: 'on the free tier processing costs nothing. the amount shows what it would cost on the paid tier, at Google\'s prices (output includes the model\'s “thinking”).',
+    aidn_job_input: 'Entry', aidn_job_photo: 'Receipt (photo)', aidn_job_chat: 'Chat',
     tile_delete_sub: 'moves the project and all items to the trash',
     new_project_placeholder: 'e.g. bathroom renovation',
     create: 'create',
@@ -1314,6 +1339,7 @@ const ICONS = {
   sPalette:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 100 17c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.6-1-2.8 0-1 .8-1.7 1.8-1.7h2.2a3.7 3.7 0 003.7-3.7C20.5 6.8 16.7 3.5 12 3.5z"/><circle cx="7.8" cy="11" r="1.1"/><circle cx="10.5" cy="7.6" r="1.1"/><circle cx="15" cy="7.8" r="1.1"/></svg>',
   sArchive:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="4.5" rx="1"/><path d="M5 9v9.5a1 1 0 001 1h12a1 1 0 001-1V9"/><path d="M10 13h4"/></svg>',
   sKey:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16.5 6.5l2.5 2.5M14.5 8.5l2 2"/></svg>',
+  sSpark:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>',
   sRestore:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 108-8 8.2 8.2 0 00-5.7 2.4L4 8.5"/><path d="M4 4v4.5h4.5"/></svg>',
   sBook:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h11.5a2 2 0 012 2V20H7a2 2 0 01-2-2z"/><path d="M5 18a2 2 0 012-2h11.5"/></svg>',
   sTrash:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5"/><path d="M10 11v5M14 11v5"/></svg>',
@@ -1592,7 +1618,7 @@ function loadProjectData(pid){
 }
 function persistEntries(){ persistChecked('troskovi:entries:'+currentProjectId, JSON.stringify(entries)); }
 function persistRates(){ persistChecked('troskovi:rates:'+currentProjectId, JSON.stringify(rates)); }
-const APP_VERSION = 38; /* svaka objava: +1, i isti broj u linku ?v=N */
+const APP_VERSION = 39; /* svaka objava: +1, i isti broj u linku ?v=N */
 function getApiKey(){ const k = lsGet('app:apiKey'); return k ? k.value : ''; }
 function setApiKey(key){ lsSet('app:apiKey', key); }
 /* ishod poslednjeg AI unosa: koji oblik zahteva je server prihvatio i zašto je odbio ostale */
@@ -1962,48 +1988,265 @@ function deleteEntry(id){
 }
 
 /* ---------- AI PARSING ---------- */
-/* v23: modeli i ponavljanje po uzoru na Apoteku v45 (zvanično 14.10.2026, ai.google.dev models/deprecations/troubleshooting):
-   gemini-3.5-flash je povučen (preusmerava se na 3.6), modeli 3.6+ ne primaju temperature/top_p/top_k → ne šalju se.
-   Ponavljaju se samo 408, 429 i 5xx, sa rastućim čekanjem: glavni → ~1 s glavni → ~2 s rezervni → ~4 s rezervni.
-   Ostali odgovori (i 400 zbog šeme) vraćaju se pozivaocu odmah. */
-const GEMINI_MODEL = 'gemini-3.5-flash-lite';          // izvlačenje troškova (tekst, glas, slika računa)
-const GEMINI_MODEL_BACKUP = 'gemini-3.6-flash';
-const GEMINI_MODEL_CHAT = 'gemini-3.6-flash';          // AI čet
-const GEMINI_MODEL_CHAT_BACKUP = 'gemini-3.5-flash-lite';
-const GEMINI_RETRY_STATUS = [408,429,500,502,503,504];
-function geminiPause(ms){ return new Promise(r=>setTimeout(r, ms + Math.floor(Math.random()*400))); }
-async function geminiFetch(models, body, timeoutMs, timeoutText){
-  const apiKey = getApiKey();
-  const plan = [[models[0],0],[models[0],1000],[models[1],2000],[models[1],4000]];
-  let lastStatus = 0;
-  for(let i=0; i<plan.length; i++){
-    const model = plan[i][0];
-    if(!model) continue;
-    if(plan[i][1]) await geminiPause(plan[i][1]);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(()=>controller.abort(), timeoutMs);
-    let resp;
-    try{
-      resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json', 'x-goog-api-key':apiKey },
-        body: JSON.stringify(body),
-        signal: controller.signal
-      });
-    } catch(fetchErr){
-      if(fetchErr.name==='AbortError') throw new Error(timeoutText);
-      throw new Error(t('cannot_connect_ai')+' '+(fetchErr.message || fetchErr));
-    } finally {
-      clearTimeout(timeoutId);
-    }
-    if(GEMINI_RETRY_STATUS.indexOf(resp.status) < 0) return resp;
-    lastStatus = resp.status;
-    await resp.text().catch(()=> '');
-  }
-  throw new Error(lastStatus===429 ? t('gemini_rate_limited') : t('gemini_busy'));
+/* v39: AI po uzoru na Arhivu v174 — moduli gemini v2 (delovi, rezervni istovremeno posle 3 s) i ai-dnevnik v1.
+   Izabrani model (Podešavanja → AI obrada) radi sve AI poslove (unos, račun, čet); drugi je rezervni.
+   3.8 Flash zvanično (ai.google.dev, models/gemini-3.8-flash, 20.10.2026.): strukturisani odgovori da, slika da,
+   thinkingLevel low/medium/high (minimal → greška) → šalje mu se 'low'. Bez temperature/top_p/top_k. */
+/* MODUL ai-dnevnik v1 */
+/* izvor: Arhiva v174 (Podešavanja → AI obrada: trošak i poslednje obrade, probano 20.10.2026.)
+Upotreba (uz modul gemini v2):
+  const log = [], t0 = Date.now();
+  try{
+    const resp = await geminiFetch(models, body, 60000, AIDN_THINK, log);
+    const data = await resp.json();  …
+    aiDnevnikAdd({name:'Glasovni unos: …', model:resp.geminiModel, usage:data.usageMetadata, ms:Date.now() - t0, log});
+  }catch(e){ aiDnevnikFail({name:'…', err:e.message, log}); throw e; }
+  HTML: aiDnevnikHtml() → blokovi „trošak“ i „poslednje obrade“ (ubaciti u ekran AI podešavanja; izbor modela i ključ
+  ostaju kako ih aplikacija već ima, izgled po uzoru na Arhivu). CSS: ai-dnevnik.css (koristi --ink, --ink-dim, --line,
+  --danger i klasu settings-card iz aplikacije).
+Prilagođava se: AIDN_KEY (prefiks aplikacije), AIDN_MODELS (isti spisak kao u aplikaciji, cene iz zvaničnog cenovnika).
+*/
+const AIDN_KEY = 'troskovi:aiUsage';
+/* Cene po 1M tokena (USD), plaćeni nivo. 3.5 Flash-Lite: deepmind.google/models/gemini/flash-lite (20.10.2026.);
+   3.8 Flash: ai.google.dev/gemini-api/docs/pricing (29.09.2026.). think = thinkingLevel za modul gemini. */
+const AIDN_MODELS = [
+  {id:'gemini-3.5-flash-lite', name:'Gemini 3.5 Flash-Lite', prices:[{to:'', inp:0.30, out:2.50}]},
+  {id:'gemini-3.8-flash', name:'Gemini 3.8 Flash', think:'low', prices:[{to:'2026-12-31', inp:0.75, out:3.75}, {to:'', inp:1.50, out:7.50}]}
+];
+const AIDN_THINK = Object.fromEntries(AIDN_MODELS.filter(m=>m.think).map(m=>[m.id, m.think]));
+function aidnEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function aidnYmd(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function aidnInt(n){ try{ return Number(n || 0).toLocaleString('sr-Latn-RS'); }catch(e){ return String(n || 0); } }
+function aidnUsd(v){
+  v = Number(v) || 0;
+  const d = v === 0 ? 0 : (v < 0.01 ? 4 : (v < 1 ? 3 : 2));
+  let s; try{ s = v.toLocaleString('sr-Latn-RS', {minimumFractionDigits:d, maximumFractionDigits:d}); }catch(e){ s = v.toFixed(d); }
+  return s + ' $';
+}
+function aidnSec(ms){ return (Math.round((ms || 0) / 100) / 10).toFixed(1).replace('.', ',') + ' s'; }
+function aidnModel(id){ return AIDN_MODELS.find(m=>m.id === id) || null; }
+function aidnCost(id, inp, out){
+  const m = aidnModel(id); if(!m) return 0;
+  const d = aidnYmd(), p = m.prices.find(x=>!x.to || d <= x.to);
+  return (inp * p.inp + out * p.out) / 1e6;
+}
+function aidnLoad(){
+  const empty = ()=>({n:0, inp:0, out:0, usd:0});
+  try{
+    const o = JSON.parse(localStorage.getItem(AIDN_KEY) || 'null');
+    if(o && typeof o === 'object') return {months:o.months || {}, total:o.total || empty(), last:Array.isArray(o.last) ? o.last : []};
+  }catch(e){}
+  return {months:{}, total:empty(), last:[]};
+}
+function aidnSave(u){ try{ localStorage.setItem(AIDN_KEY, JSON.stringify(u)); }catch(e){} }
+function aidnAtt(log){ return (log || []).map(a=>[a.st, a.ms]).slice(-12); }
+/* e: {name, model, usage: usageMetadata iz odgovora, ms, log, parts} */
+function aiDnevnikAdd(e){
+  const um = e.usage || {};
+  const inp = um.promptTokenCount || 0, out = (um.candidatesTokenCount || 0) + (um.thoughtsTokenCount || 0);
+  const usd = aidnCost(e.model, inp, out);
+  const u = aidnLoad(), mk = aidnYmd().slice(0, 7);
+  const add = o=>{ o = o || {}; o.n = (o.n || 0) + 1; o.inp = (o.inp || 0) + inp; o.out = (o.out || 0) + out; o.usd = (o.usd || 0) + usd; return o; };
+  u.months[mk] = add(u.months[mk]); u.total = add(u.total);
+  Object.keys(u.months).sort().slice(0, -12).forEach(k=>{ delete u.months[k]; });
+  u.last.unshift({ts:Date.now(), model:e.model || '', name:String(e.name || '').slice(0, 80), inp, out, usd,
+    tm:{ai:e.ms || 0, tries:(e.log || []).length || 1, parts:e.parts || 1, att:aidnAtt(e.log)}});
+  u.last = u.last.slice(0, 10);
+  aidnSave(u);
+}
+/* neuspela obrada: vidi se crveno, ne ulazi u trošak */
+function aiDnevnikFail(e){
+  const u = aidnLoad(), log = e.log || [];
+  u.last.unshift({ts:Date.now(), model:(log[log.length - 1] || {}).m || e.model || '', name:String(e.name || '').slice(0, 80),
+    fail:String(e.err || '').slice(0, 200), tm:{att:aidnAtt(log)}});
+  u.last = u.last.slice(0, 10);
+  aidnSave(u);
+}
+function aidnAttText(att){
+  return t('aidn_att') + ': ' + att.map(([st, ms])=>st === 'T' ? t('aidn_noresp') + ' ' + aidnSec(ms) : (st >= 200 && st < 300) ? t('aidn_ok') + ' ' + aidnSec(ms) : st + ' ' + t('aidn_after') + ' ' + aidnSec(ms)).join(' · ');
+}
+function aiDnevnikHtml(){
+  const u = aidnLoad(), cm = u.months[aidnYmd().slice(0, 7)] || {n:0, inp:0, out:0, usd:0};
+  const row = o=>aidnInt(o.n || 0) + ' ' + t('aidn_jobs') + ' · ' + aidnInt((o.inp || 0) + (o.out || 0)) + ' ' + t('aidn_tokens') + ' · ≈ ' + aidnUsd(o.usd || 0);
+  const when = ts=>{ const d = new Date(ts || 0); return d.getDate() + '.' + (d.getMonth() + 1) + '. ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  const mname = id=>{ const m = aidnModel(id); return m ? m.name : (id || ''); };
+  return '<div class="ai-set-lbl">' + t('aidn_cost') + '</div><div class="settings-card">' +
+    '<div class="ai-use-row"><span>' + t('aidn_month') + '</span><b>' + aidnEsc(row(cm)) + '</b></div>' +
+    '<div class="ai-use-row"><span>' + t('aidn_total') + '</span><b>' + aidnEsc(row(u.total)) + '</b></div></div>' +
+    '<div class="ai-set-lbl">' + t('aidn_last') + '</div><div class="settings-card">' +
+    (u.last.length ? u.last.map(x=>{
+      const att = x.tm && x.tm.att && x.tm.att.length ? '<small>' + aidnEsc(aidnAttText(x.tm.att)) + '</small>' : '';
+      if(x.fail != null) return '<div class="ai-last ai-fail">✗ ' + aidnEsc(x.name) + '<small>' + aidnEsc(when(x.ts) + ' · ' + mname(x.model)) + '</small>' +
+        '<small class="ai-fail-tx">' + aidnEsc(x.fail) + '</small>' + att + '</div>';
+      const tm = x.tm || {};
+      return '<div class="ai-last">' + aidnEsc(x.name) + '<small>' + aidnEsc(when(x.ts) + ' · ' + mname(x.model)) + '</small>' +
+        '<small>' + aidnEsc(aidnInt(x.inp) + ' ' + t('aidn_in') + ' · ' + aidnInt(x.out) + ' ' + t('aidn_out') + ' · ≈ ' + aidnUsd(x.usd)) + '</small>' +
+        '<small>' + aidnEsc(t('aidn_time') + ': Google ' + aidnSec(tm.ai) + (tm.parts > 1 ? ' · ' + t('aidn_parts') + ': ' + tm.parts : '') + ' · ' + t('aidn_tries') + ': ' + (tm.tries || 1)) + '</small>' + att + '</div>';
+    }).join('') : '<div class="ai-use-row"><span>' + t('aidn_empty') + '</span></div>') + '</div>' +
+    '<div class="settings-hint">' + t('aidn_hint') + '</div>';
 }
 
-async function callGeminiForExpenses(contentPart, isAudio, isImage){
+const AI_MODEL_KEY = 'troskovi:aiModel';
+function aiModelId(){ const v = lsGet(AI_MODEL_KEY); return (v && aidnModel(v.value)) ? v.value : AIDN_MODELS[0].id; }
+function aiModels(){ const m = aiModelId(); return [m, (AIDN_MODELS.find(x=>x.id !== m) || {}).id]; }
+function pickAiModel(id){ if(!aidnModel(id)) return; lsSet(AI_MODEL_KEY, id); openSettingsSub('ai'); }
+/* MODUL gemini v2 */
+/* izvor: Arhiva v173–174 (brzina AI, probano na telefonu 20.10.2026.)
+Isti poziv kao v1: geminiFetch([glavni, rezervni], body, timeoutMs[, think[, log]]) → Response u obliku generateContent
+(resp.ok / resp.status / resp.json()), pa ostatak aplikacije ostaje isti. Greške kroz geminiHttpError.
+- resp.geminiModel = model koji je stvarno odgovorio; log (niz, neobavezno) dobija svaki pokušaj {st, ms, m}
+  (st: HTTP kod ili 'T' = bez odgovora) — za modul ai-dnevnik.
+- Odgovor stiže u delovima (streamGenerateContent?alt=sse): zna se kad model POČNE da odgovara.
+- Glavni bez prvog dela za GEMINI_HEDGE_MS (+1,5 s po MB zahteva) → istovremeno rezervni; važi prvi gotov, drugi se prekida.
+- 429 → odmah rezervni (isti model se više ne pokušava); 408/5xx/bez odgovora → odmah rezervni, pa glavni (~1 s), pa
+  rezervni (~2 s) — najviše 4 pokušaja. Ostale greške (400, 401, 404) se vraćaju odmah.
+- timeoutMs = najduže čekanje bez ijednog dela (pre prvog i između delova).
+- think (neobavezno): {'gemini-3.8-flash':'low'} → generationConfig.thinkingConfig.thinkingLevel za taj model.
+  3.5 Flash-Lite: ne slati (podrazumevano minimal); 3.8 Flash: 'low' (minimal → 400).
+Prilagođava se: getApiKey() u aplikaciji; tekstovi poruka.
+*/
+const GEMINI_RETRY_STATUS = [408,429,500,502,503,504];
+const GEMINI_HEDGE_MS = 3000, GEMINI_HEDGE_PER_MB = 1500;
+function geminiErrorText(body){
+  try{ const j = JSON.parse(body); if(j && j.error && j.error.message) return String(j.error.message); }catch(e){}
+  return String(body||'');
+}
+function geminiHttpError(status, body){
+  if(status===401) return new Error('Google nije prihvatio ključ (401 - neautorizovan). Proveri da li si ključ tačno nalepio u Podešavanjima, ili napravi nov ključ na aistudio.google.com.');
+  if(status===400 && /API key/i.test(body)) return new Error('Gemini API ključ nije važeći. Proveri ga u Podešavanjima.');
+  return new Error('Gemini greška ('+status+'): '+geminiErrorText(body).slice(0,200));
+}
+/* SSE delovi (ili običan JSON) → jedan odgovor oblika generateContent; null = nečitljivo */
+function geminiCollect(txt){
+  const t = String(txt || '').trim();
+  let frames = [];
+  if(t[0] === '{' || t[0] === '['){
+    try{ const j = JSON.parse(t); frames = Array.isArray(j) ? j : [j]; }catch(e){ return null; }
+  } else {
+    t.split(/\r?\n\r?\n/).forEach(ev=>{
+      const d = ev.split(/\r?\n/).filter(l=>l.indexOf('data:') === 0).map(l=>l.slice(5).replace(/^ /, '')).join('\n');
+      if(!d.trim()) return;
+      try{ frames.push(JSON.parse(d)); }catch(e){}
+    });
+  }
+  frames = frames.filter(f=>f && typeof f === 'object');
+  if(!frames.length) return null;
+  const er = frames.find(f=>f.error);
+  if(er) return {error:er.error};
+  let text = '', finish = '', usage = null, pf = null, cand = false;
+  frames.forEach(f=>{
+    if(f.promptFeedback) pf = f.promptFeedback;
+    if(f.usageMetadata) usage = f.usageMetadata;
+    const c = (f.candidates || [])[0];
+    if(!c) return;
+    cand = true;
+    if(c.finishReason) finish = c.finishReason;
+    ((c.content || {}).parts || []).forEach(p=>{ if(typeof p.text === 'string' && !p.thought) text += p.text; });
+  });
+  const data = {candidates:cand ? [{content:{role:'model', parts:[{text}]}, finishReason:finish}] : [], usageMetadata:usage || {}};
+  if(pf) data.promptFeedback = pf;
+  return {data};
+}
+/* Jedan pokušaj: {st: HTTP kod | 'T' (bez odgovora) | 'N' (mreža) | 'X' (prekinuli smo), res, txt} */
+async function geminiAttempt(model, bodyStr, key, ctl, idleMs, onFirst){
+  let timedOut = false, first = false, idle = null;
+  const armIdle = ()=>{ clearTimeout(idle); idle = setTimeout(()=>{ timedOut = true; ctl.abort(); }, idleMs); };
+  armIdle();
+  try{
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':streamGenerateContent?alt=sse',
+      {method:'POST', headers:{'Content-Type':'application/json', 'x-goog-api-key':key}, body:bodyStr, signal:ctl.signal});
+    if(!res.ok){
+      let txt = await res.text();
+      try{ const j = JSON.parse(txt); if(Array.isArray(j) && j[0]) txt = JSON.stringify(j[0]); }catch(e){}
+      return {st:res.status, txt, res:new Response(txt, {status:res.status, headers:{'Content-Type':'application/json'}})};
+    }
+    let s = '';
+    if(res.body && res.body.getReader){
+      const rd = res.body.getReader(), dec = new TextDecoder();
+      for(;;){
+        const r = await rd.read();
+        if(r.done) break;
+        if(r.value && r.value.length){ if(!first){ first = true; if(onFirst) onFirst(); } armIdle(); s += dec.decode(r.value, {stream:true}); }
+      }
+      s += dec.decode();
+    } else s = await res.text();
+    const g = geminiCollect(s);
+    if(!g) return {st:'N'};
+    if(g.error){
+      const st = Number(g.error.code) || 500, txt = JSON.stringify({error:g.error});
+      return {st, txt, res:new Response(txt, {status:st, headers:{'Content-Type':'application/json'}})};
+    }
+    return {st:200, res:new Response(JSON.stringify(g.data), {status:200, headers:{'Content-Type':'application/json'}})};
+  }catch(e){
+    if(timedOut) return {st:'T'};
+    if(ctl.signal.aborted) return {st:'X'};
+    return {st:'N', msg:e && e.message};
+  }finally{ clearTimeout(idle); }
+}
+function geminiFetch(models, body, timeoutMs, think, log){
+  const key = getApiKey();
+  const queue = [[models[0],0],[models[1],0],[models[0],1000],[models[1],2000]].filter(x=>x[0]);
+  const cache = {};
+  const bodyFor = m=>{
+    if(cache[m]) return cache[m];
+    let b = body;
+    if(think && think[m]) b = Object.assign({}, body, {generationConfig:Object.assign({}, body.generationConfig || {}, {thinkingConfig:{thinkingLevel:think[m]}})});
+    return (cache[m] = JSON.stringify(b));
+  };
+  const hedgeMs = models[1] ? GEMINI_HEDGE_MS + Math.round(bodyFor(models[0]).length / 1048576 * GEMINI_HEDGE_PER_MB) : 0;
+  return new Promise((resolve, reject)=>{
+    let next = 0, pending = 0, tries = 0, done = false, lastErr = null, hardErr = null, netMsg = '', pauseTm = null, hedgeTm = null;
+    const live = new Map(), dead = new Set();   /* ctl → {m, t0, first} */
+    const finish = fn=>{ if(done) return; done = true; clearTimeout(pauseTm); clearTimeout(hedgeTm); live.forEach((v, c)=>c.abort()); live.clear(); fn(); };
+    const pick = ()=>{ while(next < queue.length && dead.has(queue[next][0])) next++; return next < queue.length ? queue[next++] : null; };
+    const start = wait=>{
+      const q = pick(); if(!q) return false;
+      pending++;
+      if(wait && q[1]) pauseTm = setTimeout(()=>{ pauseTm = null; if(!done) run(q[0]); }, q[1] + Math.floor(Math.random() * 400));
+      else run(q[0]);
+      return true;
+    };
+    const end = ()=>{
+      const e = hardErr || lastErr;
+      if(e && e.st !== 'T') return finish(()=>{
+        if(e.st === 429 && !hardErr) reject(new Error(t('gemini_rate_limited')));
+        else if(GEMINI_RETRY_STATUS.indexOf(e.st) >= 0 && !hardErr) reject(new Error(t('gemini_busy').replace('4', tries)));
+        else { e.res.geminiModel = e.m; resolve(e.res); }
+      });
+      if(e) return finish(()=>reject(new Error(t('server_timeout'))));
+      finish(()=>reject(new Error(t('cannot_connect_ai') + ' ' + netMsg)));
+    };
+    async function run(m){
+      const idx = tries++, ctl = new AbortController(), me = {m, t0:Date.now(), first:false};
+      live.set(ctl, me);
+      if(idx === 0 && hedgeMs) hedgeTm = setTimeout(()=>{ hedgeTm = null; if(!done && next === 1) start(false); }, hedgeMs);
+      const r = await geminiAttempt(m, bodyFor(m), key, ctl, timeoutMs, ()=>{ me.first = true; if(idx === 0 && hedgeTm){ clearTimeout(hedgeTm); hedgeTm = null; } });
+      live.delete(ctl); pending--;
+      if(done || r.st === 'X') return;
+      if(idx === 0 && hedgeTm){ clearTimeout(hedgeTm); hedgeTm = null; }
+      if(r.st === 'N'){ netMsg = r.msg || ''; if(!pending) end(); return; }
+      if(log) log.push({st:r.st, ms:Date.now() - me.t0, m});
+      if(r.st === 200){
+        /* pokušaj koji do pobede drugog nije ni počeo da odgovara ulazi u log kao 'T' (vidi se zašto je čekano) */
+        if(log) live.forEach(v=>{ if(!v.first) log.splice(log.length - 1, 0, {st:'T', ms:Date.now() - v.t0, m:v.m}); });
+        r.res.geminiModel = m;
+        return finish(()=>resolve(r.res));
+      }
+      r.m = m;
+      if(r.st === 'T' || GEMINI_RETRY_STATUS.indexOf(r.st) >= 0){
+        if(r.st === 429) dead.add(m);
+        lastErr = r;
+        if(!pending && (hardErr || !start(true))) end();
+        return;
+      }
+      hardErr = hardErr || r;
+      if(!pending) end();
+    }
+    start(false);
+  });
+}
+
+async function callGeminiForExpenses(contentPart, isAudio, isImage, jobName){
   const proj = currentProject();
   const guessCur = entries.length>0 ? entries[entries.length-1].valuta : (displayCurrency() || 'RSD');
   const known = usedCurrencies();
@@ -2044,14 +2287,15 @@ async function callGeminiForExpenses(contentPart, isAudio, isImage){
     { mode:'bez', gc:{ responseMimeType:'application/json', maxOutputTokens: 8000 } }
   ];
   const rejections = [];
-  let resp, usedMode = '';
-  const __t0 = performance.now();
+  let resp, usedMode = '', data;
+  const __t0 = performance.now(), aiLog = [];
+  try{
   for(let i=0; i<attempts.length; i++){
-    resp = await geminiFetch([GEMINI_MODEL, GEMINI_MODEL_BACKUP], {
+    resp = await geminiFetch(aiModels(), {
       systemInstruction: { parts: [{ text: sys }] },
       contents: [{ role:"user", parts: parts }],
       generationConfig: attempts[i].gc
-    }, 20000, t('server_timeout'));
+    }, 20000, AIDN_THINK, aiLog);
     if(resp.ok){ usedMode = attempts[i].mode; break; }
     const errBody = await resp.text();
     if(resp.status === 400 && i < attempts.length-1){
@@ -2064,7 +2308,9 @@ async function callGeminiForExpenses(contentPart, isAudio, isImage){
   }
   window.__lastCallMs = Math.round(performance.now() - __t0);
   saveAiFormatStatus(usedMode, rejections);
-  const data = await resp.json();
+  data = await resp.json();
+  aiDnevnikAdd({name:jobName, model:resp.geminiModel, usage:data.usageMetadata, ms:window.__lastCallMs, log:aiLog});
+  }catch(e){ aiDnevnikFail({name:jobName, err:e && e.message, log:aiLog}); throw e; }
 
   if(data.promptFeedback && data.promptFeedback.blockReason){
     throw new Error('Gemini je blokirao odgovor: ' + data.promptFeedback.blockReason);
@@ -2093,7 +2339,7 @@ async function callGeminiForExpenses(contentPart, isAudio, isImage){
 }
 
 async function parseWithAI(text){
-  return callGeminiForExpenses({ text: text }, false);
+  return callGeminiForExpenses({ text: text }, false, false, t('aidn_job_input')+': '+String(text).trim().slice(0,60));
 }
 async function parseImageWithAI(dataUrl, caption){
   const match = /^data:([^;]+);base64,(.*)$/s.exec(dataUrl);
@@ -2102,7 +2348,7 @@ async function parseImageWithAI(dataUrl, caption){
   const base64Data = match[2];
   const parts = [{ inlineData: { mimeType: mimeType, data: base64Data } }];
   if(caption && caption.trim()) parts.push({ text: caption.trim() });
-  return callGeminiForExpenses(parts, false, true);
+  return callGeminiForExpenses(parts, false, true, t('aidn_job_photo')+(caption && caption.trim() ? ': '+caption.trim().slice(0,50) : ''));
 }
 
 function findDuplicateEntry(item){
@@ -2425,19 +2671,23 @@ Pravila za JSON u AKCIJA bloku (mora biti validan JSON niz, čak i za jednu stav
 
   const history = (chatHistory||[]).map(m=>({ role: m.role==='user'?'user':'model', parts:[{text:m.text}] }));
 
-  const resp = await geminiFetch([GEMINI_MODEL_CHAT, GEMINI_MODEL_CHAT_BACKUP], {
-    systemInstruction: { parts: [{ text: sys }] },
-    contents: [...history, { role:"user", parts:[{ text: question }] }],
-    generationConfig: { maxOutputTokens: 2000 }
-  }, 25000, 'AI ne odgovara (isteklo vreme). pokušaj ponovo.');
-  if(!resp.ok){
-    const errText = await resp.text().catch(()=> '');
-    throw new Error('AI servis je vratio grešku ('+resp.status+'). '+errText.slice(0,150));
-  }
-  const data = await resp.json();
-  const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : null;
-  if(!text) throw new Error('AI nije vratio odgovor.');
-  return text.trim();
+  const aiLog = [], t0 = Date.now(), jobName = t('aidn_job_chat')+': '+String(question).trim().slice(0,60);
+  try{
+    const resp = await geminiFetch(aiModels(), {
+      systemInstruction: { parts: [{ text: sys }] },
+      contents: [...history, { role:"user", parts:[{ text: question }] }],
+      generationConfig: { maxOutputTokens: 2000 }
+    }, 25000, AIDN_THINK, aiLog);
+    if(!resp.ok){
+      const errText = await resp.text().catch(()=> '');
+      throw new Error('AI servis je vratio grešku ('+resp.status+'). '+errText.slice(0,150));
+    }
+    const data = await resp.json();
+    const text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : null;
+    if(!text) throw new Error('AI nije vratio odgovor.');
+    aiDnevnikAdd({name:jobName, model:resp.geminiModel, usage:data.usageMetadata, ms:Date.now() - t0, log:aiLog});
+    return text.trim();
+  }catch(e){ aiDnevnikFail({name:jobName, err:e && e.message, log:aiLog}); throw e; }
 }
 function setViewMode(m){ viewMode=m; render(); }
 
@@ -3188,7 +3438,7 @@ function renderSettingsTiles(){
     settingsTile(ic('🌐','sGlobe'), t('app_language'), langObj?langObj.label:'', "openSettingsSub('lang')")+
     settingsTile(ic('🎨','sPalette'), t('tile_theme'), themeName(getTheme()), "openSettingsSub('theme')")+
     settingsTile(ic('💾','sArchive'), t('tile_backup'), t('last_backup_label')+': '+lastBackupDisplay(), "openSettingsSub('backup')")+
-    settingsTile(ic('🔑','sKey'), t('tile_gemini_key'), getApiKey() ? t('key_status_set') : t('key_status_missing'), "openSettingsSub('key')")+
+    settingsTile(ic('✨','sSpark'), t('tile_ai'), (getApiKey() ? t('key_status_set') : t('key_status_missing'))+' · '+aidnModel(aiModelId()).name, "openSettingsSub('ai')")+
     settingsTile(ic('♻️','sRestore'), t('tr_tile'), trashTileSub(), "openSettingsSub('trash')")+
     settingsTile(ic('📖','sBook'), t('guide_tile'), t('guide_sub'), "openSettingsSub('guide')")+
     '<div class="settings-hint" id="appVersionLabel" style="text-align:center; padding-top:16px;">'+t('version_label')+' '+APP_VERSION+'</div>'+
@@ -3196,7 +3446,7 @@ function renderSettingsTiles(){
   m.scrollTop = 0;
 }
 /* v12: korisničko uputstvo (Podešavanja → uputstvo), kao u Arhivi: naslovi koji se otvaraju dodirom */
-const GUIDE = { 'sr-RS': [["Unos troška", "Dodirni polje dole i upiši trošak, ili ga izgovori preko mikrofona na tastaturi, npr. „kafa 300 dinara“ ili „gorivo 6200 i parking 900“. Dok pišeš, polje se raširi do zaglavlja; dodir van polja ili korak nazad ga zatvara. Prazno polje se skupi u jedan red drugim dodirom, strelicom ili tasterom obriši, a tastatura ostaje otvorena.", "Strelica ili taster Enter šalje tekst. AI izdvaja opis, iznos, valutu i kategoriju; više troškova u jednoj rečenici postaju posebne stavke. Datum je današnji, osim kad ga kažeš (npr. „juče“ ili „10. oktobra“).", "Trošak se čuva odmah, a gore piše šta je sačuvano; nova stavka u spisku kratko zasija. Tastatura ostaje otvorena za sledeći unos. Ako isti trošak već postoji u projektu, aplikacija prvo pita da li da ga doda ponovo."], ["Slika računa", "Kvadrat „Račun“ u zaglavlju nudi kameru, galeriju ili fajl (slika ili PDF). Izabrana slika se vidi iznad polja za unos; možeš dopisati napomenu i dodirnuti strelicu.", "AI čita stavke i datum sa računa. Kad pojedinačne stavke nisu čitljive, uzima ukupan iznos kao jednu stavku."], ["Ispravka i brisanje", "Dodir na stavku otvara „izmeni stavku“ preko celog ekrana: datum, opis, iznos, valuta, kategorija i napomena. Datum koji ne postoji (npr. 32.10.) se ne čuva: polje pocrveni i gore piše upozorenje. Strelice ↶ ↷ gore vraćaju kucanje reč po reč. Ispod polja „kategorija“ su postojeće kategorije projekta za dodir. „sačuvaj“ čuva izmenu, „otkaži“ ili korak nazad izlazi bez izmene.", "Crvena kanta briše stavku: prvo pita, pa stavka ide u korpu, odakle može da se vrati. Isto radi i prevlačenje stavke ulevo u spisku: zdesna uklizi crveno „Izbriši“ (telefon kratko zazuji kad ostane otvoreno); dodir na stavku ga samo skloni."], ["Zaglavlje", "Gore je naziv projekta (dodir otvara sve projekte), datum projekta („od 13.09.2026“; dodir otvara „podaci o projektu“, gde se menja) i ⚙ za Podešavanja.", "Ispod su kvadrati: Projekat (nov projekat), Pretraži, Valuta, Sortiraj i Račun. Kartica „ukupno“ pokazuje zbir projekta i broj stavki; dodir na nju otvara zbir po kategorijama (iznos i procenat, za vreme pretrage samo pronađeno) i prosek po danu."], ["Projekti", "Dodir na naziv projekta otvara sve projekte preko celog ekrana; gore je pretraga po nazivu, a dodir na projekat ga otvara. Nov projekat praviš kvadratom „Projekat“.", "Dug pritisak na projekat ga označava i otvara traku izbora sa tri dugmeta: „izmeni“ (naziv i datum projekta, kad je izabran tačno jedan), „izvezi“ (JSON fajl izabranih) i „obriši“ (ide u korpu). ✕ prekida izbor."], ["Valute i kurs", "Svaki projekat ima obračunsku valutu: sve stavke i zbirovi su krupno u njoj, a originalni iznos sitno ispod, kad je u drugoj valuti.", "Prozor „Valuta“ menja obračunsku valutu i za svaku stranu valutu iz stavki ima jedan kurs, za ceo projekat. Kurs se upisuje kao „1 strana valuta = koliko obračunske“ (npr. 1 HUF = 0,30 RSD).", "Kad nekoj valuti nedostaje kurs, kvadrat „Valuta“, njen red u prozoru Valuta i svaka njena stavka dobijaju zlatni okvir, a „upiši kurs ›“ vodi pravo na upis; kad se kurs upiše, vraćaju se u boju teme. Ispod zbira piše „+ N stavki bez kursa ›“. Polje za kurs nove valute je prazno; ispod je predlog „poslednji upisan kurs“ (iz bilo kog projekta, sa datumom) — dodir ga upisuje u polje, a važi tek kad pritisneš „sačuvaj“. Kvadrat „Valuta“ pokazuje valutu kojoj nedostaje kurs, a inače poslednju menjanu."], ["Pretraga i sortiranje", "Kvadrat „Pretraži“ otvara polje za reč (npr. „kafa“). Dok pretraga traje, kartica „ukupno“ pokazuje zbir samo pronađenih stavki. ✕ ili brisanje reči vraća ukupno projekta.", "Kvadrat „Sortiraj“ ređa stavke po datumu (uz datum piše i dan, npr. „pon 12.10.“), po kategoriji ili po nazivu."], ["AI čet", "Dugme sa oblačićem dole levo otvara razgovor sa AI. Pitaj bilo šta o troškovima svih projekata, npr. „koliko sam potrošio na hranu?“, ili dodirni jedno od gotovih pitanja.", "AI može da predloži izmenu (dodaj, izmeni ili obriši stavku), ali je ne radi sam: predlog primenjuješ tek kad ga potvrdiš. Obrisano iz četa takođe ide u korpu."], ["Obaveštenja", "Posle svake radnje gore se pojavi obaveštenje. Kvačica znači da je urađeno, a crveni znak „!“ da nešto treba proveriti (npr. nema interneta ili ključa).", "Obaveštenje posle par sekundi samo nestane; dodir ga ne zatvara, pa za to vreme možeš normalno da radiš. Dok stoji, ekran je spušten, ne zaklonjen."], ["Korpa", "Obrisani troškovi i projekti idu u korpu (Podešavanja → korpa) i tamo čekaju zadati broj dana (podrazumevano 30), a zatim se trajno brišu pri otvaranju aplikacije.", "Dodir na stavku u korpi je označava; dole se pojave „Vrati“ i „Obriši trajno“. Projekat se vraća sa svim stavkama i kursevima. Trošak se vraća u svoj projekat, a ako taj projekat više ne postoji, u otvoren projekat.", "„isprazni korpu“ trajno briše sve. Trajno brisanje uvek još jednom pita."], ["Rezervna kopija", "Podaci se čuvaju samo u Chrome-u na ovom telefonu: kad se u Chrome-u obrišu podaci sajta troskovi.github.io, podaci nestaju. Zato redovno čuvaj rezervnu kopiju.", "Podešavanja → rezervna kopija: „podeli kopiju“ otvara meni za deljenje, pa kopiju jednim dodirom pošalješ u Google Drive ili mejlom, da ne ostane samo na ovom telefonu. „izvezi“ preuzima isti fajl u Preuzimanja, a „uvezi“ ga vraća. Kad prođe zadati broj dana bez kopije (podrazumevano 7), na vrhu se pojavi crvena traka-podsetnik.", "Korpa i Gemini ključ ne idu u rezervnu kopiju.", "Aplikacija traži od Chrome-a trajno čuvanje podataka; da li je odobreno, piše na dnu ekrana rezervne kopije. Ako upis u memoriju telefona ikad ne uspe (npr. pun prostor), odmah se pojavi crveno upozorenje „NIJE SAČUVANO!“."], ["Excel", "Podešavanja → Excel: izvoz otvorenog projekta u Excel tabelu, ili uvoz tabele u ovaj ili u nov projekat. Red sa datumom koji ne postoji ili nije prepoznat dobija današnji datum, a obaveštenje posle uvoza kaže koliko je takvih."], ["Ostala podešavanja", "Podešavanja imaju dve grupe: „ovaj projekat“ (podaci o projektu, Excel, obriši projekat) i „aplikacija · svi projekti“ (sve ostalo). Podaci o projektu: naziv i datum projekta (datum koji ne postoji se ne čuva). Jezik aplikacije: automatski po telefonu, srpski ili engleski; važi za celu aplikaciju i sve projekte, a na tom jeziku su i opisi troškova koje piše AI. Tema: pet izgleda, promena se vidi odmah.", "Gemini API ključ: pravi se besplatno na aistudio.google.com (Get API key) i čuva samo na ovom telefonu. Bez ključa unos glasom, tekstom i slikom ne radi.", "Na dnu Podešavanja piše broj verzije aplikacije."]], 'en-US': [["Adding an expense", "Tap the field at the bottom and type an expense, or dictate it with the keyboard microphone, e.g. “coffee 3 euros” or “fuel 60 and parking 9”. While you type, the field grows up to the header; tapping outside it or going back closes it. An empty field shrinks back to one line with a second tap, the arrow or the delete key, and the keyboard stays open.", "The arrow or the Enter key sends the text. AI picks out the description, amount, currency and category; several expenses in one sentence become separate items. The date is today, unless you say one (e.g. “yesterday” or “October 10”).", "The expense is saved right away and a notice at the top says what was saved; the new item briefly glows in the list. The keyboard stays open for the next entry. If the same expense already exists in the project, the app first asks whether to add it again."], ["Receipt photo", "The “Receipt” square in the header offers the camera, the gallery or a file (image or PDF). The chosen image is shown above the input field; you can add a note and tap the arrow.", "AI reads the items and the date from the receipt. When single items are not readable, it takes the total as one item."], ["Editing and deleting", "Tapping an item opens “edit item” on the full screen: date, description, amount, currency, category and note. A date that does not exist (e.g. Oct 32) is not saved: the field turns red and a warning appears at the top. The ↶ ↷ arrows at the top undo typing word by word. Below the “category” field are the project’s existing categories to tap. “save” saves the change, “cancel” or going back leaves without changes.", "The red bin deletes the item: it asks first, then the item goes to the trash, where it can be restored. Swiping an item left in the list does the same: a red “Delete” slides in from the right (the phone buzzes briefly when it stays open); tapping the item just hides it."], ["Header", "At the top are the project name (tap to open all projects), the project date (“since 13.09.2026”; tap to open “project details”, where it is changed) and ⚙ for Settings.", "Below are the squares: Project (new project), Search, Currency, Sort and Receipt. The “total” card shows the project total and the number of items; tapping it opens totals by category (amount and percentage, only the found items while searching) and the average per day."], ["Projects", "Tapping the project name opens all projects on the full screen; search by name is at the top, and tapping a project opens it. Make a new project with the “Project” square.", "Long-press a project to select it and open the selection bar: “edit” (project name and date, when exactly one is selected), “export” (a JSON file of the selected) and “delete” (goes to the trash). ✕ ends the selection."], ["Currencies and rates", "Every project has an accounting currency: all items and totals are shown large in it, with the original amount small below when it is in another currency.", "The “Currency” window changes the accounting currency and has one rate for each foreign currency in the items, for the whole project. Enter the rate as “1 foreign currency = how much of the accounting currency” (e.g. 1 HUF = 0.30 RSD).", "When a currency has no rate, the “Currency” square, its row in the Currency window and each of its items get a gold frame, and “enter rate ›” goes straight to entering it; once the rate is entered they return to the theme colour. Below the total it says “+ N items without rate ›”. The rate field for a new currency is empty; below it is a “last entered rate” suggestion (from any project, with its date) — tapping it fills the field, and it applies only after “save”. The “Currency” square shows the currency missing a rate, otherwise the one changed last."], ["Search and sorting", "The “Search” square opens a field for a word (e.g. “coffee”). While searching, the “total” card shows the sum of the found items only. ✕ or clearing the word brings back the project total.", "The “Sort” square orders items by date (with the weekday, e.g. “Mon 12.10.”), by category or by name."], ["AI chat", "The speech-bubble button at the bottom left opens a chat with AI. Ask anything about the expenses of all projects, e.g. “how much did I spend on food?”, or tap one of the ready questions.", "AI can suggest a change (add, edit or delete an item), but never makes it on its own: a suggestion is applied only when you confirm it. Items deleted from the chat also go to the trash."], ["Notices", "After every action a notice appears at the top. A check mark means it is done, a red “!” that something needs checking (e.g. no internet or no key).", "The notice disappears on its own after a few seconds; tapping does not close it, so you can keep working. While it is shown, the screen moves down instead of being covered."], ["Trash", "Deleted expenses and projects go to the trash (Settings → trash) and wait there for the set number of days (30 by default), after which they are deleted for good when the app opens.", "Tapping an item in the trash selects it; “Restore” and “Delete forever” appear at the bottom. A project is restored with all its items and rates. An expense goes back to its project, or to the open project if its project no longer exists.", "“empty trash” deletes everything for good. Deleting for good always asks once more."], ["Backup", "Data is stored only in Chrome on this phone: clearing the site data of troskovi.github.io in Chrome removes it. That is why you should save a backup regularly.", "Settings → backup: “share backup” opens the share menu, so one tap sends the backup to Google Drive or by email and it does not stay only on this phone. “export” downloads the same file to Downloads, and “import” restores it. When the set number of days passes without a backup (7 by default), a red reminder bar appears at the top.", "The trash and the Gemini key are not in the backup.", "The app asks Chrome to keep its data permanently; whether that was granted is shown at the bottom of the backup screen. If saving to phone storage ever fails (e.g. storage full), a red “NOT SAVED!” warning appears right away."], ["Excel", "Settings → Excel: export the open project to an Excel sheet, or import a sheet into this project or a new one. A row with a date that does not exist or is not recognized gets today’s date, and the notice after the import says how many there were."], ["Other settings", "Settings have two groups: “this project” (project details, Excel, delete project) and “app · all projects” (everything else). Project details: project name and date (a date that does not exist is not saved). App language: automatic by phone, Serbian or English; it applies to the whole app and all projects, and AI writes the expense descriptions in it. Theme: five looks, the change shows right away.", "Gemini API key: made for free at aistudio.google.com (Get API key) and stored only on this phone. Without a key, voice, text and photo entry do not work.", "The app version number is at the bottom of Settings."]] };
+const GUIDE = { 'sr-RS': [["Unos troška", "Dodirni polje dole i upiši trošak, ili ga izgovori preko mikrofona na tastaturi, npr. „kafa 300 dinara“ ili „gorivo 6200 i parking 900“. Dok pišeš, polje se raširi do zaglavlja; dodir van polja ili korak nazad ga zatvara. Prazno polje se skupi u jedan red drugim dodirom, strelicom ili tasterom obriši, a tastatura ostaje otvorena.", "Strelica ili taster Enter šalje tekst. AI izdvaja opis, iznos, valutu i kategoriju; više troškova u jednoj rečenici postaju posebne stavke. Datum je današnji, osim kad ga kažeš (npr. „juče“ ili „10. oktobra“).", "Trošak se čuva odmah, a gore piše šta je sačuvano; nova stavka u spisku kratko zasija. Tastatura ostaje otvorena za sledeći unos. Ako isti trošak već postoji u projektu, aplikacija prvo pita da li da ga doda ponovo."], ["Slika računa", "Kvadrat „Račun“ u zaglavlju nudi kameru, galeriju ili fajl (slika ili PDF). Izabrana slika se vidi iznad polja za unos; možeš dopisati napomenu i dodirnuti strelicu.", "AI čita stavke i datum sa računa. Kad pojedinačne stavke nisu čitljive, uzima ukupan iznos kao jednu stavku."], ["Ispravka i brisanje", "Dodir na stavku otvara „izmeni stavku“ preko celog ekrana: datum, opis, iznos, valuta, kategorija i napomena. Datum koji ne postoji (npr. 32.10.) se ne čuva: polje pocrveni i gore piše upozorenje. Strelice ↶ ↷ gore vraćaju kucanje reč po reč. Ispod polja „kategorija“ su postojeće kategorije projekta za dodir. „sačuvaj“ čuva izmenu, „otkaži“ ili korak nazad izlazi bez izmene.", "Crvena kanta briše stavku: prvo pita, pa stavka ide u korpu, odakle može da se vrati. Isto radi i prevlačenje stavke ulevo u spisku: zdesna uklizi crveno „Izbriši“ (telefon kratko zazuji kad ostane otvoreno); dodir na stavku ga samo skloni."], ["Zaglavlje", "Gore je naziv projekta (dodir otvara sve projekte), datum projekta („od 13.09.2026“; dodir otvara „podaci o projektu“, gde se menja) i ⚙ za Podešavanja.", "Ispod su kvadrati: Projekat (nov projekat), Pretraži, Valuta, Sortiraj i Račun. Kartica „ukupno“ pokazuje zbir projekta i broj stavki; dodir na nju otvara zbir po kategorijama (iznos i procenat, za vreme pretrage samo pronađeno) i prosek po danu."], ["Projekti", "Dodir na naziv projekta otvara sve projekte preko celog ekrana; gore je pretraga po nazivu, a dodir na projekat ga otvara. Nov projekat praviš kvadratom „Projekat“.", "Dug pritisak na projekat ga označava i otvara traku izbora sa tri dugmeta: „izmeni“ (naziv i datum projekta, kad je izabran tačno jedan), „izvezi“ (JSON fajl izabranih) i „obriši“ (ide u korpu). ✕ prekida izbor."], ["Valute i kurs", "Svaki projekat ima obračunsku valutu: sve stavke i zbirovi su krupno u njoj, a originalni iznos sitno ispod, kad je u drugoj valuti.", "Prozor „Valuta“ menja obračunsku valutu i za svaku stranu valutu iz stavki ima jedan kurs, za ceo projekat. Kurs se upisuje kao „1 strana valuta = koliko obračunske“ (npr. 1 HUF = 0,30 RSD).", "Kad nekoj valuti nedostaje kurs, kvadrat „Valuta“, njen red u prozoru Valuta i svaka njena stavka dobijaju zlatni okvir, a „upiši kurs ›“ vodi pravo na upis; kad se kurs upiše, vraćaju se u boju teme. Ispod zbira piše „+ N stavki bez kursa ›“. Polje za kurs nove valute je prazno; ispod je predlog „poslednji upisan kurs“ (iz bilo kog projekta, sa datumom) — dodir ga upisuje u polje, a važi tek kad pritisneš „sačuvaj“. Kvadrat „Valuta“ pokazuje valutu kojoj nedostaje kurs, a inače poslednju menjanu."], ["Pretraga i sortiranje", "Kvadrat „Pretraži“ otvara polje za reč (npr. „kafa“). Dok pretraga traje, kartica „ukupno“ pokazuje zbir samo pronađenih stavki. ✕ ili brisanje reči vraća ukupno projekta.", "Kvadrat „Sortiraj“ ređa stavke po datumu (uz datum piše i dan, npr. „pon 12.10.“), po kategoriji ili po nazivu."], ["AI čet", "Dugme sa oblačićem dole levo otvara razgovor sa AI. Pitaj bilo šta o troškovima svih projekata, npr. „koliko sam potrošio na hranu?“, ili dodirni jedno od gotovih pitanja.", "AI može da predloži izmenu (dodaj, izmeni ili obriši stavku), ali je ne radi sam: predlog primenjuješ tek kad ga potvrdiš. Obrisano iz četa takođe ide u korpu."], ["Obaveštenja", "Posle svake radnje gore se pojavi obaveštenje. Kvačica znači da je urađeno, a crveni znak „!“ da nešto treba proveriti (npr. nema interneta ili ključa).", "Obaveštenje posle par sekundi samo nestane; dodir ga ne zatvara, pa za to vreme možeš normalno da radiš. Dok stoji, ekran je spušten, ne zaklonjen."], ["Korpa", "Obrisani troškovi i projekti idu u korpu (Podešavanja → korpa) i tamo čekaju zadati broj dana (podrazumevano 30), a zatim se trajno brišu pri otvaranju aplikacije.", "Dodir na stavku u korpi je označava; dole se pojave „Vrati“ i „Obriši trajno“. Projekat se vraća sa svim stavkama i kursevima. Trošak se vraća u svoj projekat, a ako taj projekat više ne postoji, u otvoren projekat.", "„isprazni korpu“ trajno briše sve. Trajno brisanje uvek još jednom pita."], ["Rezervna kopija", "Podaci se čuvaju samo u Chrome-u na ovom telefonu: kad se u Chrome-u obrišu podaci sajta troskovi.github.io, podaci nestaju. Zato redovno čuvaj rezervnu kopiju.", "Podešavanja → rezervna kopija: „podeli kopiju“ otvara meni za deljenje, pa kopiju jednim dodirom pošalješ u Google Drive ili mejlom, da ne ostane samo na ovom telefonu. „izvezi“ preuzima isti fajl u Preuzimanja, a „uvezi“ ga vraća. Kad prođe zadati broj dana bez kopije (podrazumevano 7), na vrhu se pojavi crvena traka-podsetnik.", "Korpa i Gemini ključ ne idu u rezervnu kopiju.", "Aplikacija traži od Chrome-a trajno čuvanje podataka; da li je odobreno, piše na dnu ekrana rezervne kopije. Ako upis u memoriju telefona ikad ne uspe (npr. pun prostor), odmah se pojavi crveno upozorenje „NIJE SAČUVANO!“."], ["Excel", "Podešavanja → Excel: izvoz otvorenog projekta u Excel tabelu, ili uvoz tabele u ovaj ili u nov projekat. Red sa datumom koji ne postoji ili nije prepoznat dobija današnji datum, a obaveštenje posle uvoza kaže koliko je takvih."], ["Ostala podešavanja", "Podešavanja imaju dve grupe: „ovaj projekat“ (podaci o projektu, Excel, obriši projekat) i „aplikacija · svi projekti“ (sve ostalo). Podaci o projektu: naziv i datum projekta (datum koji ne postoji se ne čuva). Jezik aplikacije: automatski po telefonu, srpski ili engleski; važi za celu aplikaciju i sve projekte, a na tom jeziku su i opisi troškova koje piše AI. Tema: pet izgleda, promena se vidi odmah.", "AI obrada: Gemini API ključ (pravi se besplatno na aistudio.google.com, Get API key, i čuva samo na ovom telefonu; bez ključa unos glasom, tekstom i slikom ne radi), izbor modela, trošak i poslednje obrade. Izabrani model radi sve AI poslove; ako ne odgovori na vreme, odmah uskače drugi.", "Na dnu Podešavanja piše broj verzije aplikacije."]], 'en-US': [["Adding an expense", "Tap the field at the bottom and type an expense, or dictate it with the keyboard microphone, e.g. “coffee 3 euros” or “fuel 60 and parking 9”. While you type, the field grows up to the header; tapping outside it or going back closes it. An empty field shrinks back to one line with a second tap, the arrow or the delete key, and the keyboard stays open.", "The arrow or the Enter key sends the text. AI picks out the description, amount, currency and category; several expenses in one sentence become separate items. The date is today, unless you say one (e.g. “yesterday” or “October 10”).", "The expense is saved right away and a notice at the top says what was saved; the new item briefly glows in the list. The keyboard stays open for the next entry. If the same expense already exists in the project, the app first asks whether to add it again."], ["Receipt photo", "The “Receipt” square in the header offers the camera, the gallery or a file (image or PDF). The chosen image is shown above the input field; you can add a note and tap the arrow.", "AI reads the items and the date from the receipt. When single items are not readable, it takes the total as one item."], ["Editing and deleting", "Tapping an item opens “edit item” on the full screen: date, description, amount, currency, category and note. A date that does not exist (e.g. Oct 32) is not saved: the field turns red and a warning appears at the top. The ↶ ↷ arrows at the top undo typing word by word. Below the “category” field are the project’s existing categories to tap. “save” saves the change, “cancel” or going back leaves without changes.", "The red bin deletes the item: it asks first, then the item goes to the trash, where it can be restored. Swiping an item left in the list does the same: a red “Delete” slides in from the right (the phone buzzes briefly when it stays open); tapping the item just hides it."], ["Header", "At the top are the project name (tap to open all projects), the project date (“since 13.09.2026”; tap to open “project details”, where it is changed) and ⚙ for Settings.", "Below are the squares: Project (new project), Search, Currency, Sort and Receipt. The “total” card shows the project total and the number of items; tapping it opens totals by category (amount and percentage, only the found items while searching) and the average per day."], ["Projects", "Tapping the project name opens all projects on the full screen; search by name is at the top, and tapping a project opens it. Make a new project with the “Project” square.", "Long-press a project to select it and open the selection bar: “edit” (project name and date, when exactly one is selected), “export” (a JSON file of the selected) and “delete” (goes to the trash). ✕ ends the selection."], ["Currencies and rates", "Every project has an accounting currency: all items and totals are shown large in it, with the original amount small below when it is in another currency.", "The “Currency” window changes the accounting currency and has one rate for each foreign currency in the items, for the whole project. Enter the rate as “1 foreign currency = how much of the accounting currency” (e.g. 1 HUF = 0.30 RSD).", "When a currency has no rate, the “Currency” square, its row in the Currency window and each of its items get a gold frame, and “enter rate ›” goes straight to entering it; once the rate is entered they return to the theme colour. Below the total it says “+ N items without rate ›”. The rate field for a new currency is empty; below it is a “last entered rate” suggestion (from any project, with its date) — tapping it fills the field, and it applies only after “save”. The “Currency” square shows the currency missing a rate, otherwise the one changed last."], ["Search and sorting", "The “Search” square opens a field for a word (e.g. “coffee”). While searching, the “total” card shows the sum of the found items only. ✕ or clearing the word brings back the project total.", "The “Sort” square orders items by date (with the weekday, e.g. “Mon 12.10.”), by category or by name."], ["AI chat", "The speech-bubble button at the bottom left opens a chat with AI. Ask anything about the expenses of all projects, e.g. “how much did I spend on food?”, or tap one of the ready questions.", "AI can suggest a change (add, edit or delete an item), but never makes it on its own: a suggestion is applied only when you confirm it. Items deleted from the chat also go to the trash."], ["Notices", "After every action a notice appears at the top. A check mark means it is done, a red “!” that something needs checking (e.g. no internet or no key).", "The notice disappears on its own after a few seconds; tapping does not close it, so you can keep working. While it is shown, the screen moves down instead of being covered."], ["Trash", "Deleted expenses and projects go to the trash (Settings → trash) and wait there for the set number of days (30 by default), after which they are deleted for good when the app opens.", "Tapping an item in the trash selects it; “Restore” and “Delete forever” appear at the bottom. A project is restored with all its items and rates. An expense goes back to its project, or to the open project if its project no longer exists.", "“empty trash” deletes everything for good. Deleting for good always asks once more."], ["Backup", "Data is stored only in Chrome on this phone: clearing the site data of troskovi.github.io in Chrome removes it. That is why you should save a backup regularly.", "Settings → backup: “share backup” opens the share menu, so one tap sends the backup to Google Drive or by email and it does not stay only on this phone. “export” downloads the same file to Downloads, and “import” restores it. When the set number of days passes without a backup (7 by default), a red reminder bar appears at the top.", "The trash and the Gemini key are not in the backup.", "The app asks Chrome to keep its data permanently; whether that was granted is shown at the bottom of the backup screen. If saving to phone storage ever fails (e.g. storage full), a red “NOT SAVED!” warning appears right away."], ["Excel", "Settings → Excel: export the open project to an Excel sheet, or import a sheet into this project or a new one. A row with a date that does not exist or is not recognized gets today’s date, and the notice after the import says how many there were."], ["Other settings", "Settings have two groups: “this project” (project details, Excel, delete project) and “app · all projects” (everything else). Project details: project name and date (a date that does not exist is not saved). App language: automatic by phone, Serbian or English; it applies to the whole app and all projects, and AI writes the expense descriptions in it. Theme: five looks, the change shows right away.", "AI processing: the Gemini API key (made for free at aistudio.google.com, Get API key, and stored only on this phone; without a key, voice, text and photo entry do not work), model choice, cost and recent jobs. The chosen model does all AI work; if it does not answer in time, the other one steps in right away.", "The app version number is at the bottom of Settings."]] };
 function guideHtml(){
   const secs = GUIDE[resolveAppLanguage()] || GUIDE['sr-RS'];
   return '<div class="settings-hint guide-intro">'+t('guide_intro')+'</div>'+
@@ -3252,9 +3502,11 @@ function openSettingsSub(which){
     title = t('tile_theme');
     body = '<div id="themeOptList">'+themeOptionsHtml()+'</div>'+
       '<div class="settings-hint">'+t('theme_hint')+'</div>';
-  } else if(which==='key'){
-    title = t('tile_gemini_key');
+  } else if(which==='ai'){
+    title = t('tile_ai');
+    const am = aiModelId();
     body =
+      '<div class="ai-set-lbl" style="margin-top:4px;">'+t('ai_lbl_key')+'</div>'+
       '<div class="settings-card">'+
       '<div class="settings-field"><label>'+t('gemini_key_label')+'</label><input type="password" id="apiKeyInput" value="'+escapeHtml(getApiKey())+'" placeholder="AIza..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></div>'+
       '</div>'+
@@ -3263,7 +3515,13 @@ function openSettingsSub(which){
       '<button class="delete-btn" style="flex:none; padding-left:18px; padding-right:18px;" onclick="confirmClearApiKey()">'+t('delete')+'</button>'+
       '</div>'+
       '<div class="settings-hint">'+t('key_hint')+'</div>'+
-      aiFormatStatusHtml();
+      aiFormatStatusHtml()+
+      '<div class="ai-set-lbl">'+t('ai_lbl_model')+'</div>'+
+      AIDN_MODELS.map(x=>'<button class="theme-opt ai-opt'+(x.id===am?' on':'')+'" data-model="'+x.id+'" onclick="pickAiModel(\''+x.id+'\')">'+
+        '<span class="t-name">'+escapeHtml(x.name)+'<small>'+escapeHtml(t(x.think ? 'ai_model_flash' : 'ai_model_lite'))+'</small></span>'+
+        '<span class="t-check">'+(x.id===am?'✓':'')+'</span></button>').join('')+
+      '<div class="settings-hint" style="padding-top:0;">'+t('ai_model_hint')+'</div>'+
+      aiDnevnikHtml();
   } else if(which==='guide'){
     title = t('guide_tile');
     body = guideHtml();
