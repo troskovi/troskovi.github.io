@@ -1,4 +1,4 @@
-const CACHE_NAME = 'troskovi-cache-v39';
+const CACHE_NAME = 'troskovi-cache-v40';
 const FILES_TO_CACHE = [
   './index.html',
   './manifest.json',
